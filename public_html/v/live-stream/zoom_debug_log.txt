@@ -1,0 +1,8 @@
+[2025-10-24 13:53:10] ==== NOVA REQUISIÇÃO DE TOKEN ====
+[2025-10-24 13:53:10] LOG: Cache vazio ou refresh forçado. Solicitando um novo token.
+[2025-10-24 13:53:10] URL da Requisição: https://zoom.us/oauth/token
+[2025-10-24 13:53:10] Cabeçalho de Autorização: Basic RjBTVGVWbjZSQ3F... (base64 ocultado no log)
+[2025-10-24 13:53:11] LOG: Resposta HTTP Code: 400
+[2025-10-24 13:53:11] LOG: Resposta Bruta da API: {"reason":"Internal Error","error":"invalid_client"}
+[2025-10-24 13:53:11] ERRO: Falha ao obter token. HTTP Code: 400. Motivo: Internal Error
+[2025-10-24 13:53:11] ERRO: Resposta decodificada: {"reason":"Internal Error","error":"invalid_client"}

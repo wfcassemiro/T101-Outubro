@@ -1,0 +1,73 @@
+<aside class="glass-sidebar collapsed" id="sidebar">
+  <nav class="sidebar-nav">
+    <ul>
+      <!-- Itens básicos para todos -->
+      <li><a href="/"><i class="fa-solid fa-house"></i><span>Início</span></a></li>
+      <li><a href="/sobre.php"><i class="fa-solid fa-circle-info"></i><span>Sobre</span></a></li>
+      
+      <?php if (function_exists('isLoggedIn') && isLoggedIn()): ?>
+        
+        <!-- Itens para usuários LOGADOS (todos os níveis) -->
+        <li><a href="/glossarios.php"><i class="fa-solid fa-book"></i><span>Glossários</span></a></li>
+        
+        <?php if (function_exists('hasVideotecaAccess') && hasVideotecaAccess()): ?>
+          <!-- Itens para SUBSCRIBERS e ADMINS -->
+          <li><a href="/videoteca.php"><i class="fa-solid fa-film"></i><span>Videoteca</span></a></li>
+          <li><a href="/live-stream/"><i class="fa-solid fa-broadcast-tower"></i><span>Ao Vivo</span></a></li>
+        <?php endif; ?>
+        
+        <li><a href="/dash-t101/"><i class="fa-solid fa-gauge"></i><span>Dashboard</span></a></li>
+        
+        <?php if (function_exists('isAdmin') && isAdmin()): ?>
+          <!-- Itens exclusivos para ADMINISTRADORES -->
+          <li><a href="/admin/"><i class="fa-solid fa-crown"></i><span>Administração</span></a></li>
+          <li><a href="/admin/usuarios.php"><i class="fa-solid fa-users"></i><span>Usuários</span></a></li>
+          <li><a href="/admin/certificados.php"><i class="fa-solid fa-certificate"></i><span>Certificados</span></a></li>
+          <li><a href="/admin/palestras.php"><i class="fa-solid fa-microphone"></i><span>Palestras</span></a></li>
+        <?php endif; ?>
+        
+      <?php else: ?>
+        
+        <!-- Itens para usuários NÃO LOGADOS -->
+        <li><a href="/glossarios.php"><i class="fa-solid fa-book"></i><span>Glossários</span></a></li>
+        
+      <?php endif; ?>
+    </ul>
+  </nav>
+</aside>
+
+<script>
+// Toggle sidebar functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const sidebarToggle = document.querySelector('.mobile-menu-toggle');
+    const sidebar = document.getElementById('sidebar');
+    
+    if (sidebarToggle && sidebar) {
+        sidebarToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('active');
+        });
+    }
+    
+    // Auto-collapse sidebar on desktop
+    function handleSidebarCollapse() {
+        if (window.innerWidth > 900) {
+            sidebar.classList.add('collapsed');
+        } else {
+            sidebar.classList.remove('collapsed');
+        }
+    }
+    
+    // Check on load and resize
+    handleSidebarCollapse();
+    window.addEventListener('resize', handleSidebarCollapse);
+    
+    // Toggle sidebar collapse on desktop
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'b' && e.ctrlKey) {
+            e.preventDefault();
+            sidebar.classList.toggle('collapsed');
+            document.body.classList.toggle('sidebar-collapsed');
+        }
+    });
+});
+</script>

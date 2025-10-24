@@ -1,0 +1,154 @@
+<?php
+/**
+ * Sistema de Autenticação OAuth 2.0 Server-to-Server do Zoom
+ * com Geração de Log para Diagnóstico
+ */
+
+require_once 'zoom_config.php';
+
+// --- FUNÇÃO DE LOG ---
+function writeToZoomLog($message) {
+    $logFile = __DIR__ . '/zoom_debug_log.txt';
+    $timestamp = date('Y-m-d H:i:s');
+    $logMessage = "[{$timestamp}] " . $message . "\n";
+    file_put_contents($logFile, $logMessage, FILE_APPEND);
+}
+// --------------------
+
+function getZoomAccessToken($forceRefresh = false) {
+    $cacheFile = sys_get_temp_dir() . '/zoom_token_cache.json';
+    
+    // Inicia o log para esta requisição
+    writeToZoomLog("================== NOVA REQUISIÇÃO DE TOKEN ==================");
+
+    if (!$forceRefresh && file_exists($cacheFile)) {
+        $cacheData = json_decode(file_get_contents($cacheFile), true);
+        if (isset($cacheData['expires_at']) && $cacheData['expires_at'] > (time() + 300)) {
+            writeToZoomLog("LOG: Usando token válido do cache. Expira em: " . date('Y-m-d H:i:s', $cacheData['expires_at']));
+            return $cacheData['access_token'];
+        } else {
+            writeToZoomLog("LOG: Token em cache expirado ou inválido. Solicitando um novo.");
+        }
+    } else {
+         writeToZoomLog("LOG: Cache vazio ou refresh forçado. Solicitando um novo token.");
+    }
+    
+    $credentials = base64_encode(ZOOM_CLIENT_ID . ':' . ZOOM_CLIENT_SECRET);
+    $requestUrl = ZOOM_OAUTH_TOKEN_URL . '?grant_type=account_credentials&account_id=' . ZOOM_ACCOUNT_ID;
+    
+    writeToZoomLog("URL da Requisição: " . $requestUrl);
+    writeToZoomLog("Cabeçalho de Autorização: Basic " . substr($credentials, 0, 15) . "...");
+    
+    $ch = curl_init();
+    curl_setopt_array($ch, [
+        CURLOPT_URL => $requestUrl,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST => true,
+        CURLOPT_HTTPHEADER => [
+            'Authorization: Basic ' . $credentials,
+            'Content-Type: application/x-www-form-urlencoded'
+        ],
+        CURLOPT_SSL_VERIFYPEER => true,
+        CURLOPT_TIMEOUT => 30
+    ]);
+    
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $error = curl_error($ch);
+    curl_close($ch);
+    
+    writeToZoomLog("LOG: Resposta HTTP Code: " . $httpCode);
+    writeToZoomLog("LOG: Resposta Bruta da API: " . $response);
+    
+    if ($error) {
+        writeToZoomLog("ERRO cURL: " . $error);
+        return false;
+    }
+    
+    $data = json_decode($response, true);
+    
+    if ($httpCode !== 200 || !isset($data['access_token'])) {
+        writeToZoomLog("ERRO: Falha ao obter token. Resposta da API não continha um access_token válido.");
+        return false;
+    }
+    
+    // ** PONTO CRÍTICO: Logar os escopos recebidos **
+    if (isset($data['scope'])) {
+        writeToZoomLog("IMPORTANTE: Escopos recebidos no token: " . $data['scope']);
+    } else {
+        writeToZoomLog("AVISO: A resposta do token não continha o campo 'scope'.");
+    }
+    
+    $cacheData = [
+        'access_token' => $data['access_token'],
+        'expires_at' => time() + ($data['expires_in'] ?? 3600),
+        'created_at' => time()
+    ];
+    file_put_contents($cacheFile, json_encode($cacheData));
+    
+    writeToZoomLog("LOG: Novo token obtido e salvo em cache com sucesso.");
+    writeToZoomLog("============================================================\n");
+    
+    return $data['access_token'];
+}
+
+function zoomApiRequest($endpoint, $method = 'GET', $data = null, $retry = true) {
+    $token = getZoomAccessToken();
+    
+    if (!$token) {
+        return ['success' => false, 'error' => 'Não foi possível obter token de autenticação'];
+    }
+    
+    $url = ZOOM_API_BASE_URL . $endpoint;
+    
+    $ch = curl_init();
+    $headers = ['Authorization: Bearer ' . $token, 'Content-Type: application/json'];
+    $curlOptions = [
+        CURLOPT_URL => $url,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_HTTPHEADER => $headers,
+        CURLOPT_SSL_VERIFYPEER => true,
+        CURLOPT_TIMEOUT => 30
+    ];
+    
+    if ($method === 'POST') {
+        $curlOptions[CURLOPT_POST] = true;
+        if ($data) $curlOptions[CURLOPT_POSTFIELDS] = json_encode($data);
+    } elseif ($method === 'PATCH') {
+        $curlOptions[CURLOPT_CUSTOMREQUEST] = 'PATCH';
+        if ($data) $curlOptions[CURLOPT_POSTFIELDS] = json_encode($data);
+    } elseif ($method === 'DELETE') {
+        $curlOptions[CURLOPT_CUSTOMREQUEST] = 'DELETE';
+    }
+    
+    curl_setopt_array($ch, $curlOptions);
+    
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $error = curl_error($ch);
+    curl_close($ch);
+    
+    if ($error) {
+        return ['success' => false, 'error' => 'Erro de conexão: ' . $error];
+    }
+    
+    $responseData = json_decode($response, true);
+    
+    if ($httpCode === 401 && $retry) {
+        $newToken = getZoomAccessToken(true);
+        if ($newToken) {
+            return zoomApiRequest($endpoint, $method, $data, false);
+        }
+    }
+    
+    if ($httpCode >= 200 && $httpCode < 300) {
+        return ['success' => true, 'data' => $responseData, 'http_code' => $httpCode];
+    } else {
+        $errorMessage = $responseData['message'] ?? 'Erro desconhecido (HTTP ' . $httpCode . ')';
+        if (strpos($errorMessage, 'does not contain scopes') !== false) {
+            $errorMessage .= ' - SOLUÇÃO: Configure os escopos granulares no Zoom App Marketplace. Veja ESCOPOS_ZOOM_CORRIGIDOS.md';
+        }
+        return ['success' => false, 'error' => $errorMessage, 'http_code' => $httpCode, 'response' => $responseData];
+    }
+}
+?>

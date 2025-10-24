@@ -1,0 +1,1460 @@
+<?php
+session_start();
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/dash_database.php';
+
+// Verificar se o usuário está logado
+if (!isLoggedIn()) {
+    header('Location: /login.php?redirect=' . urlencode($_SERVER['REQUEST_URI']));
+    exit;
+}
+
+$page_title = 'Projetos - Dash-T101';
+$user_id = $_SESSION['user_id'];
+$message = '';
+$error = '';
+
+// Processar adição de novo serviço
+$new_service_added = '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new_service_type']) && !empty($_POST['new_service_type'])) {
+    $new_service = trim($_POST['new_service_type']);
+    if (!empty($new_service)) {
+        // Inicializar array de serviços customizados se não existir
+        if (!isset($_SESSION['custom_services'])) {
+            $_SESSION['custom_services'] = [];
+        }
+        // Verificar se o serviço já existe para evitar duplicatas
+        if (!in_array($new_service, $_SESSION['custom_services'])) {
+            $_SESSION['custom_services'][] = $new_service;
+            $new_service_added = $new_service;
+            $message = "Novo serviço '$new_service' adicionado com sucesso!";
+        } else {
+            $new_service_added = $new_service;
+            $message = "Serviço '$new_service' já existe na lista!";
+        }
+    }
+}
+
+// Processar ações
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['action'])) {
+        switch ($_POST['action']) {
+            case 'add_project':
+                try {
+                    $word_count = intval($_POST['word_count'] ?? 0);
+                    $rate_per_word = floatval($_POST['rate_per_word'] ?? 0);
+                    $daily_word_target = intval($_POST['daily_target'] ?? 0);
+
+                    $negotiated_amount = floatval(str_replace(',', '.', $_POST['negotiated_value'] ?? '0'));
+                    $calculated_amount = calculateProjectTotal($word_count, 0, $rate_per_word, 0);
+                    $total_amount = ($negotiated_amount > 0) ? $negotiated_amount : $calculated_amount;
+
+                    $stmt = $pdo->prepare("INSERT INTO dash_projects (user_id, client_id, title, po_number, description, source_language, target_language, service_type, word_count, rate_per_word, total_amount, currency, status, priority, start_date, deadline, notes, daily_word_target) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                    $result = $stmt->execute([
+                        $user_id,
+                        $_POST['client_id'],
+                        $_POST['project_name'],
+                        $_POST['po_number'] ?? null,
+                        $_POST['description'] ?? '',
+                        $_POST['source_lang'],
+                        $_POST['target_lang'],
+                        $_POST['service_type'],
+                        $word_count,
+                        $rate_per_word,
+                        $total_amount,
+                        $_POST['currency'],
+                        $_POST['status'],
+                        $_POST['priority'],
+                        $_POST['start_date'] ?: null,
+                        $_POST['due_date'] ?: null,
+                        $_POST['notes'] ?? '',
+                        $daily_word_target
+                    ]);
+
+                    if ($result) {
+                        $message = 'Projeto adicionado com sucesso!';
+                    } else {
+                        $error = 'Erro ao adicionar projeto.';
+                    }
+                } catch (PDOException $e) {
+                    $error = 'Erro: ' . $e->getMessage();
+                }
+                break;
+
+            case 'edit_project':
+                try {
+                    $word_count = intval($_POST['word_count'] ?? 0);
+                    $rate_per_word = floatval($_POST['rate_per_word'] ?? 0);
+                    $daily_word_target = intval($_POST['daily_target'] ?? 0);
+
+                    $negotiated_amount = floatval(str_replace(',', '.', $_POST['negotiated_value'] ?? '0'));
+                    $calculated_amount = calculateProjectTotal($word_count, 0, $rate_per_word, 0);
+                    $total_amount = ($negotiated_amount > 0) ? $negotiated_amount : $calculated_amount;
+
+                    $stmt = $pdo->prepare("UPDATE dash_projects SET client_id = ?, title = ?, po_number = ?, description = ?, source_language = ?, target_language = ?, service_type = ?, word_count = ?, rate_per_word = ?, total_amount = ?, currency = ?, status = ?, priority = ?, start_date = ?, deadline = ?, notes = ?, daily_word_target = ? WHERE id = ? AND user_id = ?");
+                    $result = $stmt->execute([
+                        $_POST['client_id'],
+                        $_POST['project_name'],
+                        $_POST['po_number'] ?? null,
+                        $_POST['description'] ?? '',
+                        $_POST['source_lang'],
+                        $_POST['target_lang'],
+                        $_POST['service_type'],
+                        $word_count,
+                        $rate_per_word,
+                        $total_amount,
+                        $_POST['currency'],
+                        $_POST['status'],
+                        $_POST['priority'],
+                        $_POST['start_date'] ?: null,
+                        $_POST['due_date'] ?: null,
+                        $_POST['notes'] ?? '',
+                        $daily_word_target,
+                        $_POST['project_id'],
+                        $user_id
+                    ]);
+
+                    if ($result) {
+                        $message = 'Projeto atualizado com sucesso!';
+                    } else {
+                        $error = 'Erro ao atualizar projeto.';
+                    }
+                } catch (PDOException $e) {
+                    $error = 'Erro: ' . $e->getMessage();
+                }
+                break;
+
+            case 'delete_project':
+                try {
+                    $stmt = $pdo->prepare("DELETE FROM dash_projects WHERE id = ? AND user_id = ?");
+                    $result = $stmt->execute([$_POST['project_id'], $user_id]);
+
+                    if ($result) {
+                        $message = 'Projeto excluído com sucesso!';
+                    } else {
+                        $error = 'Erro ao excluir projeto.';
+                    }
+                } catch (PDOException $e) {
+                    $error = 'Erro: ' . $e->getMessage();
+                }
+                break;
+
+            case 'complete_project':
+                try {
+                    $project_id = $_POST['project_id'];
+                    $stmt = $pdo->prepare("UPDATE dash_projects SET status = 'completed', completed_date = CURDATE() WHERE id = ? AND user_id = ?");
+                    $result = $stmt->execute([$project_id, $user_id]);
+
+                    if ($result) {
+                        $message = 'Projeto marcado como concluído!';
+                    } else {
+                        $error = 'Erro ao marcar projeto como concluído.';
+                    }
+                } catch (PDOException $e) {
+                    $error = 'Erro: ' . $e->getMessage();
+                }
+                break;
+
+            case 'generate_invoice':
+                try {
+                    $project_id = $_POST['project_id'];
+                    $invoice_number = generateInvoiceFromProject($user_id, $project_id);
+
+                    if ($invoice_number) {
+                        $message = 'Fatura gerada com sucesso! Número: ' . $invoice_number;
+                    } else {
+                        $error = 'Erro ao gerar fatura a partir do projeto.';
+                    }
+                } catch (PDOException $e) {
+                    $error = 'Erro: ' . $e->getMessage();
+                }
+                break;
+        }
+    }
+}
+
+// Obter lista de clientes
+$stmt = $pdo->prepare("SELECT id, company AS company_name, default_currency FROM dash_clients WHERE user_id = ? ORDER BY company ASC");
+$stmt->execute([$user_id]);
+$clients = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Obter lista de projetos
+$search = $_GET['search'] ?? '';
+$status_filter = $_GET['status'] ?? '';
+$where_clause = "WHERE p.user_id = ?";
+$params = [$user_id];
+
+if ($search) {
+    $where_clause .= " AND (p.title LIKE ? OR c.company LIKE ?)";
+    $search_param = "%$search%";
+    $params[] = $search_param;
+    $params[] = $search_param;
+}
+
+if ($status_filter) {
+    $where_clause .= " AND p.status = ?";
+    $params[] = $status_filter;
+}
+
+$stmt = $pdo->prepare("SELECT p.*, p.title AS project_name, p.description AS project_description, p.po_number, p.daily_word_target, c.company AS company_name, c.name AS contact_name FROM dash_projects p LEFT JOIN dash_clients c ON p.client_id = c.id $where_clause ORDER BY p.created_at DESC");
+$stmt->execute($params);
+$projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Obter projeto para edição se solicitado
+$edit_project = null;
+if (isset($_GET['edit']) && is_numeric($_GET['edit'])) {
+    $stmt = $pdo->prepare("SELECT p.*, p.title AS project_name, p.description AS project_description, p.po_number, p.daily_word_target, c.company AS company_name, c.name AS contact_name FROM dash_projects p LEFT JOIN dash_clients c ON p.client_id = c.id WHERE p.id = ? AND p.user_id = ?");
+    $stmt->execute([$_GET['edit'], $user_id]);
+    $edit_project = $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+// Linha do tempo
+$display_range_days = 30;
+$today_display_offset_days = 10;
+
+date_default_timezone_set('America/Sao_Paulo');
+$today_ts = strtotime(date('Y-m-d'));
+
+$min_display_date = strtotime(date('Y-m-d', strtotime("-$today_display_offset_days days", $today_ts)));
+$max_display_date = strtotime(date('Y-m-d', strtotime("+" . ($display_range_days - $today_display_offset_days - 1) . " days", $today_ts)));
+
+$today_pos_on_global_line_percent = ($today_display_offset_days / $display_range_days) * 100;
+
+$page_title = "Projetos - Dash-T101";
+$page_description = "Gerencie seus projetos de tradução e acompanhe o progresso.";
+include __DIR__ . '/../vision/includes/head.php';
+include __DIR__ . '/../vision/includes/header.php';
+include __DIR__ . '/../vision/includes/sidebar.php';
+?>
+
+<div class="main-content">
+    <?php if ($message): ?>
+        <div class="alert-success">
+            <i class="fas fa-check-circle"></i>
+            <?php echo htmlspecialchars($message); ?>
+        </div>
+    <?php endif; ?>
+
+    <?php if ($error): ?>
+        <div class="alert-error">
+            <i class="fas fa-exclamation-triangle"></i>
+            <?php echo htmlspecialchars($error); ?>
+        </div>
+    <?php endif; ?>
+
+    <div class="video-card">
+        <h2><i class="fas fa-plus-circle"></i> Adicionar novo projeto</h2>
+
+        <form method="POST" class="vision-form-refined">
+            <input type="hidden" name="action" value="<?php echo $edit_project ? 'edit_project' : 'add_project'; ?>">
+            <?php if ($edit_project): ?>
+                <input type="hidden" name="project_id" value="<?php echo $edit_project['id']; ?>">
+            <?php endif; ?>
+
+            <!-- Primeira linha: Nome do Projeto (campo largo) -->
+            <div class="form-row">
+                <div class="form-group form-group-full">
+                    <label for="project_name"><i class="fas fa-folder-plus"></i> Nome do projeto *</label>
+                    <input type="text" id="project_name" name="project_name" required value="<?php echo htmlspecialchars($edit_project['project_name'] ?? ''); ?>" class="vision-input">
+                </div>
+            </div>
+
+            <!-- Segunda linha: Cliente, Idioma Origem, Idioma Destino -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="client_id"><i class="fas fa-user"></i> Cliente *</label>
+                    <select id="client_id" name="client_id" required class="vision-select">
+                        <option value="">Selecione um cliente</option>
+                        <?php foreach ($clients as $client): ?>
+                            <option value="<?php echo $client['id']; ?>"
+                                    data-currency="<?php echo htmlspecialchars($client['default_currency']); ?>"
+                                    <?php echo ($edit_project && $edit_project['client_id'] == $client['id']) ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($client['company_name']); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="source_lang"><i class="fas fa-language"></i> Idioma de origem *</label>
+                    <select id="source_lang" name="source_lang" required class="vision-select">
+                        <option value="">Selecione</option>
+                        <?php
+                        $languages = [
+                            'pt' => 'Português',
+                            'en' => 'Inglês',
+                            'es' => 'Espanhol',
+                            'fr' => 'Francês',
+                            'de' => 'Alemão',
+                            'it' => 'Italiano',
+                            'ja' => 'Japonês',
+                            'ko' => 'Coreano',
+                            'zh' => 'Chinês',
+                            'ru' => 'Russo'
+                        ];
+                        foreach ($languages as $code => $name): ?>
+                            <option value="<?php echo $code; ?>" <?php echo ($edit_project && $edit_project['source_language'] == $code) ? 'selected' : ''; ?>>
+                                <?php echo $name; ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="target_lang"><i class="fas fa-language"></i> Idioma de destino *</label>
+                    <select id="target_lang" name="target_lang" required class="vision-select">
+                        <option value="">Selecione</option>
+                        <?php foreach ($languages as $code => $name): ?>
+                            <option value="<?php echo $code; ?>" <?php echo ($edit_project && $edit_project['target_language'] == $code) ? 'selected' : ''; ?>>
+                                <?php echo $name; ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Terceira linha: Tipo de Serviço, PO Number -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="service_type"><i class="fas fa-cogs"></i> Tipo de serviço *</label>
+                    <div class="service-type-container">
+                        <select id="service_type" name="service_type" required class="vision-select">
+                            <option value="traducao" <?php echo ($edit_project && $edit_project['service_type'] == 'traducao') ? 'selected' : ''; ?>>Tradução</option>
+                            <option value="revisao" <?php echo ($edit_project && $edit_project['service_type'] == 'revisao') ? 'selected' : ''; ?>>Revisão</option>
+                            <option value="localizacao" <?php echo ($edit_project && $edit_project['service_type'] == 'localizacao') ? 'selected' : ''; ?>>Localização</option>
+                            <option value="interpretacao" <?php echo ($edit_project && $edit_project['service_type'] == 'interpretacao') ? 'selected' : ''; ?>>Interpretação</option>
+                            <option value="transcricao" <?php echo ($edit_project && $edit_project['service_type'] == 'transcricao') ? 'selected' : ''; ?>>Transcrição</option>
+                            <?php if (isset($_SESSION['custom_services'])): ?>
+                                <?php foreach ($_SESSION['custom_services'] as $service): ?>
+                                    <option value="<?php echo htmlspecialchars($service); ?>" 
+                                        <?php 
+                                        if ($edit_project && $edit_project['service_type'] == $service) {
+                                            echo 'selected';
+                                        } elseif ($new_service_added && $new_service_added == $service) {
+                                            echo 'selected';
+                                        }
+                                        ?>>
+                                        <?php echo htmlspecialchars($service); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </select>
+                        <button type="button" class="add-service-btn" onclick="showAddServiceModal()">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="po_number"><i class="fas fa-hashtag"></i> Número da PO</label>
+                    <input type="text" id="po_number" name="po_number" value="<?php echo htmlspecialchars($edit_project['po_number'] ?? ''); ?>" class="vision-input">
+                </div>
+            </div>
+
+            <!-- Quarta linha: Contagem, Taxa, Moeda -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="word_count"><i class="fas fa-sort-numeric-up"></i> Contagem de palavras</label>
+                    <input type="number" id="word_count" name="word_count" value="<?php echo $edit_project['word_count'] ?? ''; ?>" oninput="calculateTotal()" class="vision-input">
+                </div>
+                <div class="form-group">
+                    <label for="rate_per_word"><i class="fas fa-dollar-sign"></i> Valor por palavra</label>
+                    <input type="number" id="rate_per_word" name="rate_per_word" step="0.0001" value="<?php echo $edit_project['rate_per_word'] ?? ''; ?>" oninput="calculateTotal()" class="vision-input">
+                </div>
+                <div class="form-group">
+                    <label for="currency"><i class="fas fa-money-bill-wave"></i> Moeda</label>
+                    <select id="currency" name="currency" class="vision-select">
+                        <option value="BRL" <?php echo ($edit_project && $edit_project['currency'] == 'BRL') ? 'selected' : ''; ?>>BRL</option>
+                        <option value="USD" <?php echo ($edit_project && $edit_project['currency'] == 'USD') ? 'selected' : ''; ?>>USD</option>
+                        <option value="EUR" <?php echo ($edit_project && $edit_project['currency'] == 'EUR') ? 'selected' : ''; ?>>EUR</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Quinta linha: Total Calculado, Valor Negociado, Meta Diária -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label><i class="fas fa-calculator"></i> Total calculado</label>
+                    <input type="text" id="total_calculated" readonly value="R$ 0,00" class="vision-input vision-input-readonly">
+                </div>
+                <div class="form-group">
+                    <label for="negotiated_value"><i class="fas fa-hand-holding-usd"></i> Valor negociado</label>
+                    <input type="number" id="negotiated_value" name="negotiated_value" step="0.01" value="<?php echo $edit_project['total_amount'] ?? ''; ?>" class="vision-input">
+                </div>
+                <div class="form-group">
+                    <label for="daily_target"><i class="fas fa-chart-line"></i> Meta palavras/dia</label>
+                    <input type="number" id="daily_target" name="daily_target" value="<?php echo $edit_project['daily_word_target'] ?? ''; ?>" class="vision-input">
+                </div>
+            </div>
+
+            <!-- Sexta linha: Status, Prioridade -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="status"><i class="fas fa-tasks"></i> Status</label>
+                    <select id="status" name="status" class="vision-select">
+                        <option value="pendente" <?php echo ($edit_project && $edit_project['status'] == 'pending') ? 'selected' : ''; ?>>Pendente</option>
+                        <option value="em_andamento" <?php echo ($edit_project && $edit_project['status'] == 'in_progress') ? 'selected' : ''; ?>>Em andamento</option>
+                        <option value="concluido" <?php echo ($edit_project && $edit_project['status'] == 'completed') ? 'selected' : ''; ?>>Concluído</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="priority"><i class="fas fa-flag"></i> Prioridade</label>
+                    <select id="priority" name="priority" class="vision-select">
+                        <option value="baixa" <?php echo ($edit_project && $edit_project['priority'] == 'low') ? 'selected' : ''; ?>>Baixa</option>
+                        <option value="media" <?php echo ($edit_project && $edit_project['priority'] == 'medium') ? 'selected' : ''; ?>>Média</option>
+                        <option value="alta" <?php echo ($edit_project && $edit_project['priority'] == 'high') ? 'selected' : ''; ?>>Alta</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Sétima linha: Datas -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="start_date"><i class="fas fa-calendar"></i> Data de início</label>
+                    <input type="date" id="start_date" name="start_date" value="<?php echo $edit_project['start_date'] ?? ''; ?>" class="vision-input">
+                </div>
+                <div class="form-group">
+                    <label for="due_date"><i class="fas fa-calendar-alt"></i> Prazo de entrega</label>
+                    <input type="date" id="due_date" name="due_date" value="<?php echo $edit_project['deadline'] ?? ''; ?>" class="vision-input">
+                </div>
+            </div>
+
+            <!-- Oitava linha: Descrição (campo largo) -->
+            <div class="form-row">
+                <div class="form-group form-group-full">
+                    <label for="description"><i class="fas fa-align-left"></i> Descrição do projeto</label>
+                    <textarea id="description" name="description" rows="4" class="vision-textarea"><?php echo htmlspecialchars($edit_project['project_description'] ?? ''); ?></textarea>
+                </div>
+            </div>
+
+            <!-- Botões -->
+            <div class="form-actions">
+                <button type="submit" class="vision-btn vision-btn-primary">
+                    <i class="fas fa-save"></i> <?php echo $edit_project ? 'Atualizar projeto' : 'Salvar projeto'; ?>
+                </button>
+                <?php if ($edit_project): ?>
+                    <a href="projects.php" class="vision-btn vision-btn-secondary">
+                        <i class="fas fa-times"></i> Cancelar
+                    </a>
+                <?php endif; ?>
+            </div>
+        </form>
+    </div>
+
+    <div class="video-card">
+        <h2><i class="fas fa-chart-line"></i> Linha do tempo dos projetos</h2>
+        <div class="timeline-container">
+            <div class="timeline-header">
+                <div class="timeline-label">
+                    <span class="timeline-title">Projetos</span>
+                </div>
+                <div class="timeline-bar">
+                    <?php
+                    $start_date_label = date('d/m/Y', $min_display_date);
+                    $end_date_label = date('d/m/Y', $max_display_date);
+                    $today_label = date('d/m/Y', $today_ts);
+                    ?>
+                    <span class="timeline-date timeline-date-start">
+                        <?php echo $start_date_label; ?>
+                    </span>
+
+                    <span class="timeline-date timeline-date-end">
+                        <?php echo $end_date_label; ?>
+                    </span>
+
+                    <div class="timeline-today" style="left: <?php echo $today_pos_on_global_line_percent; ?>%;">
+                        <span class="timeline-today-label">HOJE (<?php echo $today_label; ?>)</span>
+                    </div>
+                </div>
+            </div>
+
+            <?php if (empty($projects)): ?>
+                <div class="alert-warning">
+                    <i class="fas fa-info-circle"></i>
+                    Nenhum projeto para exibir na linha do tempo.
+                </div>
+            <?php else: ?>
+                <?php
+                function interpolateColor($ratio) {
+                    $r = (int)(34 + ($ratio * (239 - 34)));
+                    $g = (int)(197 - ($ratio * (197 - 55)));
+                    $b = (int)(94 - ($ratio * 94));
+                    return "rgb($r,$g,$b)";
+                }
+
+                foreach ($projects as $project):
+                    $start_ts = $project['start_date'] ? strtotime($project['start_date']) : null;
+                    $deadline_ts = $project['deadline'] ? strtotime($project['deadline']) : null;
+
+                    if ($start_ts === null || $deadline_ts === null || $deadline_ts < $min_display_date || $start_ts > $max_display_date) {
+                        continue;
+                    }
+
+                    $visible_start_ts = max($start_ts, $min_display_date);
+                    $visible_end_ts = min($deadline_ts, $max_display_date);
+
+                    $offset_start_project_days = ($visible_start_ts - $min_display_date) / (60 * 60 * 24);
+                    $offset_end_project_days = ($visible_end_ts - $min_display_date) / (60 * 60 * 24);
+
+                    $project_display_start_percent = ($offset_start_project_days / $display_range_days) * 100;
+                    $project_display_end_percent = ($offset_end_project_days / $display_range_days) * 100;
+
+                    $today_pos_percent_on_bar = ($today_display_offset_days / $display_range_days) * 100;
+
+                    $progress_ratio = 0;
+                    if ($deadline_ts > $start_ts) {
+                        $progress_ratio = ($today_ts - $start_ts) / ($deadline_ts - $start_ts);
+                        $progress_ratio = max(0, min(1, $progress_ratio));
+                    }
+
+                    $color_gradient_css = '';
+                    $color_width = 0;
+                    $gray_width = 0;
+
+                    if ($today_ts >= $deadline_ts) {
+                        $color_width = $project_display_end_percent - $project_display_start_percent;
+                        $gray_width = 0;
+                        $color_gradient_css = "linear-gradient(to right, #22c55e, " . interpolateColor(1) . ")";
+                    } elseif ($today_ts < $start_ts) {
+                        $color_width = 0;
+                        $gray_width = $project_display_end_percent - $project_display_start_percent;
+                    } else {
+                        $current_progress_ratio_for_color = ($today_ts - $start_ts) / ($deadline_ts - $start_ts);
+                        $current_progress_ratio_for_color = max(0, min(1, $current_progress_ratio_for_color));
+                        $color_to_today = interpolateColor($current_progress_ratio_for_color);
+
+                        $color_gradient_css = "linear-gradient(to right, #22c55e, $color_to_today)";
+
+                        $color_segment_end_percent = min($today_pos_percent_on_bar, $project_display_end_percent);
+                        $color_width = max(0, $color_segment_end_percent - $project_display_start_percent);
+
+                        $gray_segment_start_percent = max($today_pos_percent_on_bar, $project_display_start_percent);
+                        $gray_width = max(0, $project_display_end_percent - $gray_segment_start_percent);
+
+                        if ($project_display_start_percent + $color_width > $project_display_end_percent) {
+                            $color_width = $project_display_end_percent - $project_display_start_percent;
+                            $gray_width = 0;
+                        } else if ($project_display_start_percent + $color_width + $gray_width > $project_display_end_percent + 0.1) {
+                            $gray_width = $project_display_end_percent - ($project_display_start_percent + $color_width);
+                        }
+                    }
+
+                    $display_deadline_date_label = date('d/m', $deadline_ts);
+                    $label_pos_on_global_line = (($deadline_ts - $min_display_date) / (60 * 60 * 24 * $display_range_days)) * 100;
+                    $label_transform_x = '-50%';
+
+                    $estimated_label_width_percent = (strlen($display_deadline_date_label) * 0.7);
+
+                    if ($deadline_ts > $max_display_date) {
+                        $label_left_pos = 100;
+                        $label_transform_x = '-100%';
+                    } else {
+                        $label_left_pos = (($deadline_ts - $min_display_date) / (60 * 60 * 24)) / ($display_range_days / 100);
+
+                        if (($label_left_pos + ($estimated_label_width_percent / 2)) > $project_display_end_percent) {
+                            $label_left_pos = $project_display_end_percent - ($estimated_label_width_percent / 2) - 0.5;
+                            $label_transform_x = '-50%';
+                        } else if (($label_left_pos - ($estimated_label_width_percent / 2)) < $project_display_start_percent) {
+                            $label_left_pos = $project_display_start_percent + ($estimated_label_width_percent / 2) + 0.5;
+                            $label_transform_x = '-50%';
+                        } else {
+                            $label_transform_x = '-50%';
+                        }
+                    }
+
+                    $label_left_pos = max(0, min(100, $label_left_pos));
+                    ?>
+                    <div class="timeline-project">
+                        <div class="timeline-project-info">
+                            <span class="project-name"><?php echo htmlspecialchars($project['project_name']); ?></span>
+                            <span class="project-client"> - <?php echo htmlspecialchars($project['company_name']); ?></span>
+                        </div>
+                        <div class="timeline-project-bar">
+                            <?php if ($color_width > 0): ?>
+                                <div class="timeline-progress timeline-progress-color"
+                                     style="left: <?php echo $project_display_start_percent; ?>%;
+                                            width: <?php echo $color_width; ?>%;
+                                            background-image: <?php echo $color_gradient_css; ?>;">
+                                </div>
+                            <?php endif; ?>
+                            <?php if ($gray_width > 0): ?>
+                                <div class="timeline-progress timeline-progress-gray"
+                                     style="left: <?php echo $project_display_start_percent + $color_width; ?>%;
+                                            width: <?php echo $gray_width; ?>%;">
+                                </div>
+                            <?php endif; ?>
+
+                            <?php if ($today_pos_percent_on_bar >= $project_display_start_percent && $today_pos_percent_on_bar <= $project_display_end_percent): ?>
+                                <div class="timeline-today-marker"
+                                     style="left: <?php echo $today_pos_percent_on_bar; ?>%;">
+                                </div>
+                            <?php endif; ?>
+
+                            <span class="timeline-deadline-label"
+                                  style="left: <?php echo $label_left_pos; ?>%; transform: translate(<?php echo $label_transform_x; ?>, -50%);">
+                                <?php echo $display_deadline_date_label; ?>
+                            </span>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </div>
+    </div>
+
+    <div class="video-card">
+        <h2><i class="fas fa-chart-bar"></i> Estimativa de produtividade</h2>
+
+        <?php
+        $pending_projects_for_estimation = array_filter($projects, function($p) use ($today_ts) {
+            $is_active_status = ($p['status'] !== 'completed' && $p['status'] !== 'cancelled');
+            $has_future_deadline = false;
+            if ($p['deadline']) {
+                $deadline_ts_project = strtotime($p['deadline']);
+                $has_future_deadline = ($deadline_ts_project >= $today_ts);
+            }
+            $has_word_count = ($p['word_count'] > 0);
+            return $is_active_status && $has_future_deadline && $has_word_count;
+        });
+
+        if (empty($pending_projects_for_estimation)): ?>
+            <div class="alert-warning">
+                <i class="fas fa-info-circle"></i>
+                Nenhum projeto pendente com prazo e contagem de palavras para estimativa.
+            </div>
+        <?php else: ?>
+            <div class="vision-table-container">
+                <table class="vision-table">
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-project-diagram"></i> Projeto</th>
+                            <th><i class="fas fa-calendar-check"></i> Prazo</th>
+                            <th><i class="fas fa-sort-numeric-up"></i> Palavras</th>
+                            <th><i class="fas fa-clock"></i> Dias restantes</th>
+                            <th><i class="fas fa-target"></i> Meta diária</th>
+                            <th><i class="fas fa-chart-line"></i> Sugestão diária</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($pending_projects_for_estimation as $project):
+                            $deadline_ts = strtotime($project['deadline']);
+                            $days_remaining_calc = ($deadline_ts - $today_ts) / (60 * 60 * 24);
+                            $days_remaining = max(1, floor($days_remaining_calc) + 1);
+                            $words_to_translate = $project['word_count'];
+                            $suggested_daily_words = ($days_remaining > 0) ? ceil($words_to_translate / $days_remaining) : $words_to_translate;
+                        ?>
+                            <tr>
+                                <td><span class="text-primary"><?php echo htmlspecialchars($project['project_name']); ?></span></td>
+                                <td><?php echo date('d/m/Y', $deadline_ts); ?></td>
+                                <td><?php echo number_format($words_to_translate, 0, ',', '.'); ?></td>
+                                <td><?php echo $days_remaining; ?></td>
+                                <td><?php echo $project['daily_word_target'] > 0 ? number_format($project['daily_word_target'], 0, ',', '.') : '-'; ?></td>
+                                <td>
+                                    <?php
+                                    $daily_target_set = $project['daily_word_target'];
+                                    if ($daily_target_set > 0) {
+                                        if ($daily_target_set < $suggested_daily_words) {
+                                            echo '<span class="text-warning">' . number_format($suggested_daily_words, 0, ',', '.') . ' (Acima da meta!)</span>';
+                                        } elseif ($daily_target_set >= $suggested_daily_words) {
+                                            echo '<span class="text-success">' . number_format($suggested_daily_words, 0, ',', '.') . ' (Meta atingida!)</span>';
+                                        }
+                                    } else {
+                                        echo number_format($suggested_daily_words, 0, ',', '.');
+                                    }
+                                    ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php endif; ?>
+    </div>
+
+    <div class="video-card">
+        <div class="card-header-refined">
+            <h2><i class="fas fa-list"></i> Lista de projetos</h2>
+
+            <div class="search-filters-refined">
+                <form method="GET" class="search-form-refined">
+                    <div class="search-group-refined">
+                        <input type="text" name="search" placeholder="Buscar projetos..." 
+                               value="<?php echo htmlspecialchars($search); ?>" class="vision-search">
+                        <select name="status" class="vision-select">
+                            <option value="">Todos os status</option>
+                            <option value="pending" <?php echo ($status_filter == 'pending') ? 'selected' : ''; ?>>Pendente</option>
+                            <option value="in_progress" <?php echo ($status_filter == 'in_progress') ? 'selected' : ''; ?>>Em andamento</option>
+                            <option value="completed" <?php echo ($status_filter == 'completed') ? 'selected' : ''; ?>>Concluído</option>
+                            <option value="cancelled" <?php echo ($status_filter == 'cancelled') ? 'selected' : ''; ?>>Cancelado</option>
+                        </select>
+                        <button type="submit" class="vision-btn vision-btn-primary">
+                            <i class="fas fa-search"></i>
+                        </button>
+                        <?php if ($search || $status_filter): ?>
+                            <a href="projects.php" class="vision-btn vision-btn-secondary">
+                                <i class="fas fa-times"></i>
+                            </a>
+                        <?php endif; ?>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <?php if (empty($projects)): ?>
+            <div class="alert-warning">
+                <i class="fas fa-info-circle"></i>
+                <?php echo ($search || $status_filter) ? 'Nenhum projeto encontrado com os critérios de busca.' : 'Nenhum projeto cadastrado ainda.'; ?>
+            </div>
+        <?php else: ?>
+            <div class="vision-table-container">
+                <table class="vision-table">
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-project-diagram"></i> Projeto</th>
+                            <th><i class="fas fa-user"></i> Cliente</th>
+                            <th><i class="fas fa-language"></i> Idiomas</th>
+                            <th><i class="fas fa-flag"></i> Status</th>
+                            <th><i class="fas fa-money-bill-wave"></i> Valor</th>
+                            <th><i class="fas fa-calendar-check"></i> Prazo</th>
+                            <th><i class="fas fa-cogs"></i> Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($projects as $project): ?>
+                            <tr>
+                                <td>
+                                    <div class="project-info-refined">
+                                        <span class="project-name-refined"><?php echo htmlspecialchars($project['project_name']); ?></span>
+                                        <span class="project-type-refined"><?php echo ucfirst($project['service_type']); ?></span>
+                                        <?php if ($project['po_number']): ?>
+                                            <span class="po-number-refined">PO: <?php echo htmlspecialchars($project['po_number']); ?></span>
+                                        <?php endif; ?>
+                                    </div>
+                                </td>
+                                <td class="client-name-refined"><?php echo htmlspecialchars($project['company_name']); ?></td>
+                                <td class="language-pair-refined">
+                                    <?php echo strtoupper($project['source_language']); ?> → <?php echo strtoupper($project['target_language']); ?>
+                                </td>
+                                <td>
+                                    <span class="status-badge-refined status-<?php echo $project['status']; ?>"><?php
+                                        $status_labels = [
+                                            'pending' => 'Pendente',
+                                            'in_progress' => 'Em andamento',
+                                            'completed' => 'Concluído',
+                                            'cancelled' => 'Cancelado',
+                                            'on_hold' => 'Pausado'
+                                        ];
+                                        echo $status_labels[$project['status']] ?? $project['status'];
+                                    ?></span>
+                                </td>
+                                <td class="value-cell-refined"><?php echo formatCurrency($project['total_amount'], $project['currency'] ?? 'BRL'); ?></td>
+                                <td class="deadline-cell-refined">
+                                    <?php if ($project['deadline']): ?>
+                                        <?php echo date('d/m/Y', strtotime($project['deadline'])); ?>
+                                    <?php else: ?>
+                                        <span class="text-muted">-</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <div class="action-buttons-refined">
+                                        <a href="?edit=<?php echo $project['id']; ?>" class="action-btn-refined action-btn-edit" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <?php if ($project['status'] != 'completed'): ?>
+                                            <form method="POST" style="display: inline;" onsubmit="return confirm('Tem certeza que deseja marcar como concluído?')">
+                                                <input type="hidden" name="action" value="complete_project">
+                                                <input type="hidden" name="project_id" value="<?php echo $project['id']; ?>">
+                                                <button type="submit" class="action-btn-refined action-btn-complete" title="Concluir">
+                                                    <i class="fas fa-check-circle"></i>
+                                                </button>
+                                            </form>
+                                        <?php endif; ?>
+                                        <form method="POST" style="display: inline;" onsubmit="return confirm('Tem certeza que deseja gerar uma fatura?')">
+                                            <input type="hidden" name="action" value="generate_invoice">
+                                            <input type="hidden" name="project_id" value="<?php echo $project['id']; ?>">
+                                            <button type="submit" class="action-btn-refined action-btn-invoice" title="Gerar Fatura">
+                                                <i class="fas fa-file-invoice"></i>
+                                            </button>
+                                        </form>
+                                        <form method="POST" style="display: inline;" onsubmit="return confirm('Tem certeza que deseja excluir?')">
+                                            <input type="hidden" name="action" value="delete_project">
+                                            <input type="hidden" name="project_id" value="<?php echo $project['id']; ?>">
+                                            <button type="submit" class="action-btn-refined action-btn-delete" title="Excluir">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php endif; ?>
+    </div>
+</div>
+
+<!-- Modal para adicionar novo serviço -->
+<div id="addServiceModal" class="vision-modal">
+    <div class="vision-modal-content">
+        <div class="vision-modal-header">
+            <h3><i class="fas fa-plus-circle"></i> Adicionar Novo Serviço</h3>
+            <button type="button" class="vision-modal-close" onclick="hideAddServiceModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <form method="POST" class="vision-modal-form" id="addServiceForm">
+            <div class="form-group">
+                <label for="new_service_type">Nome do serviço:</label>
+                <input type="text" id="new_service_type" name="new_service_type" required class="vision-input" placeholder="Ex: Legendagem, Dublagem...">
+            </div>
+            <div class="vision-modal-actions">
+                <button type="submit" class="vision-btn vision-btn-primary">
+                    <i class="fas fa-plus"></i> Adicionar
+                </button>
+                <button type="button" class="vision-btn vision-btn-secondary" onclick="hideAddServiceModal()">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+/* Card titles com margin-left */
+.video-card > h2 {
+    margin-left: 30px;
+}
+
+/* Layout do formulário refinado */
+.vision-form-refined {
+    padding: 0 30px 30px;
+}
+
+.form-row {
+    display: grid;
+    gap: 20px;
+    margin-bottom: 25px;
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.form-row:has(.form-group-full) {
+    grid-template-columns: 1fr;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group-full {
+    grid-column: 1 / -1;
+}
+
+.form-group label {
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+}
+
+/* Inputs estilo Apple Vision */
+.vision-input,
+.vision-select,
+.vision-textarea {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 12px 16px;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+.vision-input:focus,
+.vision-select:focus,
+.vision-textarea:focus {
+    border-color: var(--brand-purple);
+    box-shadow: 0 0 0 3px rgba(142, 68, 173, 0.2);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.vision-input-readonly {
+    background: rgba(255, 255, 255, 0.02);
+    border-color: rgba(255, 255, 255, 0.05);
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* Textarea específico */
+.vision-textarea {
+    resize: vertical;
+    min-height: 100px;
+    font-family: inherit;
+}
+
+/* Container para tipo de serviço com botão + */
+.service-type-container {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+}
+
+.service-type-container .vision-select {
+    flex: 1;
+}
+
+.add-service-btn {
+    background: var(--brand-purple);
+    border: 1px solid var(--brand-purple);
+    border-radius: 16px;
+    width: 44px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.add-service-btn:hover {
+    background: var(--brand-purple-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(142, 68, 173, 0.4);
+}
+
+/* Botões do formulário */
+.form-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: flex-start;
+    margin-top: 30px;
+    padding: 0 30px;
+}
+
+.vision-btn {
+    background: var(--brand-purple);
+    color: white;
+    border: 1px solid var(--brand-purple);
+    border-radius: 20px;
+    padding: 12px 24px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+    box-shadow: 0 4px 12px rgba(142, 68, 173, 0.3);
+}
+
+.vision-btn:hover {
+    background: var(--brand-purple-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(142, 68, 173, 0.4);
+}
+
+.vision-btn-primary {
+    background: var(--brand-purple);
+    border-color: var(--brand-purple);
+}
+
+.vision-btn-secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.vision-btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Header de cards refinado */
+.card-header-refined {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 25px 30px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.card-header-refined h2 {
+    margin: 0 !important;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Busca refinada */
+.search-filters-refined {
+    display: flex;
+    align-items: center;
+}
+
+.search-form-refined {
+    display: flex;
+    align-items: center;
+}
+
+.search-group-refined {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.vision-search {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 10px 16px;
+    color: var(--text-primary);
+    width: 250px;
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+.vision-search:focus {
+    border-color: var(--brand-purple);
+    box-shadow: 0 0 0 3px rgba(142, 68, 173, 0.2);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.vision-search::placeholder {
+    color: var(--text-muted);
+}
+
+/* Tabela refinada */
+.vision-table-container {
+    margin: 0;
+    overflow-x: auto;
+}
+
+.vision-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: transparent;
+}
+
+.vision-table th {
+    background: rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 18px 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    text-align: left;
+}
+
+.vision-table td {
+    padding: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    font-size: 0.95rem;
+}
+
+.vision-table tr:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.vision-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* Informações do projeto na tabela */
+.project-info-refined {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.project-name-refined {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 1rem;
+}
+
+.project-type-refined {
+    font-size: 0.8rem;
+    color: var(--brand-purple);
+    text-transform: uppercase;
+    font-weight: 500;
+}
+
+.po-number-refined {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-family: monospace;
+}
+
+.client-name-refined {
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.language-pair-refined {
+    color: var(--text-primary);
+    font-weight: 600;
+    font-family: monospace;
+}
+
+.value-cell-refined {
+    font-weight: 600;
+    color: var(--accent-green);
+    font-size: 1rem;
+}
+
+.deadline-cell-refined {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+/* Botões de ação na tabela */
+.action-buttons-refined {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.action-btn-refined {
+    width: 36px;
+    height: 36px;
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.action-btn-refined:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.action-btn-edit:hover {
+    background: var(--brand-purple);
+    color: white;
+    border-color: var(--brand-purple);
+}
+
+.action-btn-complete:hover {
+    background: var(--accent-green);
+    color: white;
+    border-color: var(--accent-green);
+}
+
+.action-btn-invoice:hover {
+    background: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+}
+
+.action-btn-delete:hover {
+    background: #ef4444;
+    color: white;
+    border-color: #ef4444;
+}
+
+/* Modal para adicionar serviços */
+.vision-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.vision-modal.active {
+    display: flex;
+}
+
+.vision-modal-content {
+    background: rgba(30, 30, 30, 0.95);
+    backdrop-filter: blur(30px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+}
+
+.vision-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 25px 30px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.vision-modal-header h3 {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.vision-modal-close {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.2rem;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 16px;
+    transition: all 0.3s ease;
+}
+
+.vision-modal-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+}
+
+.vision-modal-form {
+    padding: 30px;
+}
+
+.vision-modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+/* Responsivo */
+@media (max-width: 1200px) {
+    .form-row {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .search-group-refined {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+    
+    .vision-search {
+        width: 100%;
+    }
+    
+    .vision-table {
+        font-size: 0.85rem;
+    }
+    
+    .vision-table th,
+    .vision-table td {
+        padding: 12px 8px;
+    }
+    
+    .action-buttons-refined {
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+}
+
+@media (max-width: 480px) {
+    .vision-form-refined {
+        padding: 0 15px 20px;
+    }
+    
+    .card-header-refined {
+        padding: 20px 15px 15px;
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+    }
+    
+    .vision-modal-content {
+        margin: 20px;
+    }
+}
+</style>
+
+<script>
+// Funções do formulário
+const wordCountInput = document.getElementById('word_count');
+const ratePerWordInput = document.getElementById('rate_per_word');
+const totalCalculatedInput = document.getElementById('total_calculated');
+const negotiatedValueInput = document.getElementById('negotiated_value');
+const currencySelect = document.getElementById('currency');
+const clientIdSelect = document.getElementById('client_id');
+
+function calculateTotal() {
+    const wordCount = parseFloat(wordCountInput.value) || 0;
+    const ratePerWord = parseFloat(ratePerWordInput.value) || 0;
+    const total = wordCount * ratePerWord;
+    totalCalculatedInput.value = formatCurrencyForDisplay(total, currencySelect.value);
+}
+
+function formatCurrencyForDisplay(amount, currency) {
+    if (isNaN(amount)) {
+        amount = 0;
+    }
+    switch (currency) {
+        case 'BRL':
+            return 'R$ ' + amount.toFixed(2).replace('.', ',');
+        case 'USD':
+            return '$' + amount.toFixed(2);
+        case 'EUR':
+            return '€' + amount.toFixed(2).replace('.', ',');
+        default:
+            return amount.toFixed(2);
+    }
+}
+
+function handleRateInput() {
+    calculateTotal();
+    if (negotiatedValueInput.value === '') {
+        currencySelect.value = currencySelect.value;
+    }
+}
+
+clientIdSelect.addEventListener('change', function () {
+    const selectedOption = this.options[this.selectedIndex];
+    const defaultCurrency = selectedOption.dataset.currency;
+    if (defaultCurrency) {
+        currencySelect.value = defaultCurrency;
+    }
+    handleRateInput();
+});
+
+function updateCurrencyForNegotiated() {
+    if (negotiatedValueInput.value !== '') {
+        wordCountInput.disabled = true;
+        ratePerWordInput.disabled = true;
+    } else {
+        wordCountInput.disabled = false;
+        ratePerWordInput.disabled = false;
+        calculateTotal();
+        const selectedOption = clientIdSelect.options[clientIdSelect.selectedIndex];
+        const defaultCurrency = selectedOption.dataset.currency;
+        if (defaultCurrency) {
+            currencySelect.value = defaultCurrency;
+        }
+    }
+}
+negotiatedValueInput.addEventListener('input', updateCurrencyForNegotiated);
+
+// Modal functions
+function showAddServiceModal() {
+    document.getElementById('addServiceModal').classList.add('active');
+    document.getElementById('new_service_type').focus();
+}
+
+function hideAddServiceModal() {
+    document.getElementById('addServiceModal').classList.remove('active');
+    document.getElementById('new_service_type').value = '';
+}
+
+// Fechar modal clicando fora
+document.getElementById('addServiceModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        hideAddServiceModal();
+    }
+});
+
+// Fechar modal com ESC
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        hideAddServiceModal();
+    }
+});
+
+// Processar formulário de adicionar serviço
+document.getElementById('addServiceForm').addEventListener('submit', function(e) {
+    const newServiceInput = document.getElementById('new_service_type');
+    const serviceName = newServiceInput.value.trim();
+    
+    if (!serviceName) {
+        e.preventDefault();
+        alert('Por favor, insira o nome do serviço.');
+        newServiceInput.focus();
+        return false;
+    }
+    
+    // Verificar se o serviço já existe
+    const serviceSelect = document.getElementById('service_type');
+    const options = serviceSelect.options;
+    for (let i = 0; i < options.length; i++) {
+        if (options[i].text.toLowerCase() === serviceName.toLowerCase()) {
+            e.preventDefault();
+            alert('Este serviço já existe na lista!');
+            newServiceInput.focus();
+            return false;
+        }
+    }
+    
+    // Se chegou até aqui, submete o formulário
+    // O PHP vai processar e recarregar a página com o novo serviço selecionado
+});
+
+// Inicialização
+document.addEventListener('DOMContentLoaded', function () {
+    calculateTotal();
+    if (negotiatedValueInput.value !== '') {
+        wordCountInput.disabled = true;
+        ratePerWordInput.disabled = true;
+    } else {
+        handleRateInput();
+    }
+
+    if (clientIdSelect.value) {
+        const selectedOption = clientIdSelect.options[clientIdSelect.selectedIndex];
+        const defaultCurrency = selectedOption.dataset.currency;
+        if (defaultCurrency) {
+            currencySelect.value = defaultCurrency;
+            if (!negotiatedValueInput.value) {
+                currencySelect.value = defaultCurrency;
+            }
+        }
+    }
+    
+    <?php if ($new_service_added): ?>
+        // Se um novo serviço foi adicionado, destacar brevemente
+        setTimeout(function() {
+            const serviceSelect = document.getElementById('service_type');
+            serviceSelect.style.boxShadow = '0 0 0 3px rgba(34, 197, 94, 0.3)';
+            serviceSelect.style.borderColor = '#22c55e';
+            
+            setTimeout(function() {
+                serviceSelect.style.boxShadow = '';
+                serviceSelect.style.borderColor = '';
+            }, 2000);
+        }, 500);
+    <?php endif; ?>
+});
+</script>
+
+<?php
+include __DIR__ . '/../vision/includes/footer.php';
+?>

@@ -1,0 +1,4 @@
+[2025-06-27 18:42:09] PDOException in generateInvoiceFromProject: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'subtotal' in 'INSERT INTO' (SQLSTATE: 42S22)
+[2025-06-27 18:44:36] PDOException in generateInvoiceFromProject: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'tax_rate' in 'INSERT INTO' (SQLSTATE: 42S22)
+[2025-06-27 18:46:47] PDOException in generateInvoiceFromProject: SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`u335416710_t101_db`.`dash_invoices`, CONSTRAINT `dash_invoices_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `dash_projects` (`id`) ON DELETE CASCADE) (SQLSTATE: 23000)
+[2025-09-06 22:53:45] PDOException in generateInvoiceFromProject: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'INV-202509-0001' for key 'invoice_number' (SQLSTATE: 23000)
