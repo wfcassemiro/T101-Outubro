@@ -210,13 +210,15 @@ $usersWithHotmart = $stmt->fetch()['total'];
                 1. Buscar os <?= $totalUsers ?> usuários ativos do banco<br>
                 2. Para cada usuário com dados Hotmart, buscar o progresso na API<br>
                 3. Salvar os dados de progresso encontrados<br><br>
-                <strong>Vantagem:</strong> Não depende do Club API que está vazio!
+                <strong>Vantagem:</strong> Não depende do Club API que está vazio!<br>
+                <strong>⏱️ Tempo estimado:</strong> ~5-10 minutos para todos os usuários
             </p>
             <form method="POST" action="?action=sync" id="syncForm">
                 <button type="submit" class="btn" id="syncBtn">
                     Iniciar Sincronização LOCAL
                 </button>
             </form>
+            <div id="syncProgress" style="margin-top: 20px;"></div>
             <div id="syncResult"></div>
         </div>
         
