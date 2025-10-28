@@ -13,9 +13,9 @@ error_reporting(E_ALL);
 set_time_limit(600);
 
 // Incluir arquivos necessários
-require_once __DIR__ . '/../public_html/v/config/database.php';
-require_once __DIR__ . '/../public_html/v/config/hotmart.php';
-require_once __DIR__ . '/../public_html/v/hotmart.php';
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/hotmart.php';
+require_once __DIR__ . '/../hotmart.php';
 require_once __DIR__ . '/HotmartProgressSync.php';
 
 echo "[" . date('Y-m-d H:i:s') . "] Iniciando sincronização automática de progresso Hotmart...\n";
