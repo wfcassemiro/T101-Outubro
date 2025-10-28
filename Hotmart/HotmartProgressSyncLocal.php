@@ -316,64 +316,38 @@ class HotmartProgressSyncLocal {
      */
     private function syncUserProgressLocal($user, $subscriptionMap = []) {
         $userId = $user['id'];
-        $email = $user['email'];
+        $email = strtolower(trim($user['email']));
         $name = $user['name'];
         
-        // Prioridade: hotmart_ucode > hotmart_subscription_id
+        // Prioridade: hotmart_ucode > mapeamento por email > hotmart_subscription_id
         $hotmartUcode = $user['hotmart_ucode'] ?? null;
-        $hotmartSubId = $user['hotmart_subscription_id'] ?? null;
         
         // Log detalhado dos IDs disponíveis
         $this->log("Processando usuário: {$name} ({$email})");
         $this->log("  - hotmart_ucode: " . ($hotmartUcode ?: 'NULL'));
-        $this->log("  - hotmart_subscription_id: " . ($hotmartSubId ?: 'NULL'));
-        
-        // Se não tem nenhum ID, pular
-        if (!$hotmartUcode && !$hotmartSubId) {
-            $this->log("  ⚠️ Usuário sem hotmart_ucode ou hotmart_subscription_id, pulando...", 'WARNING');
-            return ['success' => false, 'message' => 'Sem identificador Hotmart'];
-        }
+        $this->log("  - email: {$email}");
         
         // Se tem ucode, usar diretamente
         if ($hotmartUcode) {
-            $this->log("  ✓ Usando ucode: {$hotmartUcode}");
+            $this->log("  ✓ Usando ucode existente: {$hotmartUcode}");
             return $this->fetchAndSaveProgress($userId, $hotmartUcode, $email);
         }
         
-        // Se só tem subscription_id, tentar obter o ucode primeiro
-        if ($hotmartSubId) {
-            $this->log("  → Tentando obter ucode do subscription_id: {$hotmartSubId}");
+        // Tentar buscar ucode no mapeamento por email
+        if (isset($subscriptionMap[$email])) {
+            $ucode = $subscriptionMap[$email];
+            $this->log("  ✓ Ucode encontrado no mapeamento por email: {$ucode}");
             
-            // Primeiro, tentar usar o mapeamento pré-carregado
-            if (isset($subscriptionMap[$hotmartSubId])) {
-                $ucode = $subscriptionMap[$hotmartSubId];
-                $this->log("  ✓ Ucode encontrado no mapeamento: {$ucode}");
-                
-                // Salvar o ucode no banco para uso futuro
-                $this->updateUserHotmartUcode($userId, $ucode);
-                
-                // Buscar progresso com o ucode
-                return $this->fetchAndSaveProgress($userId, $ucode, $email);
-            }
+            // Salvar o ucode no banco para uso futuro
+            $this->updateUserHotmartUcode($userId, $ucode);
             
-            // Fallback: buscar individualmente (método antigo)
-            $ucode = $this->getUcodeFromSubscription($hotmartSubId);
-            
-            if ($ucode) {
-                $this->log("  ✓ Ucode obtido via API individual: {$ucode}");
-                
-                // Salvar o ucode no banco para uso futuro
-                $this->updateUserHotmartUcode($userId, $ucode);
-                
-                // Buscar progresso com o ucode
-                return $this->fetchAndSaveProgress($userId, $ucode, $email);
-            } else {
-                $this->log("  ✗ Não foi possível obter ucode do subscription_id", 'WARNING');
-                return ['success' => false, 'message' => 'Não foi possível obter ucode'];
-            }
+            // Buscar progresso com o ucode
+            return $this->fetchAndSaveProgress($userId, $ucode, $email);
         }
         
-        return ['success' => false, 'message' => 'Sem identificador válido'];
+        $this->log("  ✗ Email não encontrado no mapeamento", 'WARNING');
+        $this->log("  O usuário não está ativo no Club ou Subscriptions", 'WARNING');
+        return ['success' => false, 'message' => 'Email não encontrado no mapeamento'];
     }
     
     /**
