@@ -8,7 +8,7 @@ ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
 // Incluir configurações
-require_once __DIR__ . '/../public_html/v/config/hotmart.php';
+require_once __DIR__ . '/../config/hotmart.php';
 
 ?>
 <!DOCTYPE html>
