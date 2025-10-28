@@ -13,12 +13,8 @@ class HotmartProgressSync {
     public function __construct($pdo, $hotmartApi) {
         $this->pdo = $pdo;
         $this->hotmartApi = $hotmartApi;
-        $this->logFile = __DIR__ . '/logs/progress_sync.log';
-        
-        // Criar diretório de logs se não existir
-        if (!is_dir(__DIR__ . '/logs')) {
-            mkdir(__DIR__ . '/logs', 0755, true);
-        }
+        // Log no diretório v/logs/ que já existe
+        $this->logFile = __DIR__ . '/../logs/hotmart_progress_sync.log';
     }
     
     /**
