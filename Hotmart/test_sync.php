@@ -13,9 +13,9 @@ error_reporting(E_ALL);
 set_time_limit(300);
 
 // Incluir arquivos necessários do sistema principal
-require_once __DIR__ . '/../public_html/v/config/database.php';
-require_once __DIR__ . '/../public_html/v/config/hotmart.php';
-require_once __DIR__ . '/../public_html/v/hotmart.php';
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/hotmart.php';
+require_once __DIR__ . '/../hotmart.php';
 require_once __DIR__ . '/HotmartProgressSync.php';
 
 // Verificar se é requisição AJAX ou web normal
