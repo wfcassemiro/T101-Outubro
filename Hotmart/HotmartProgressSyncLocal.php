@@ -393,6 +393,7 @@ class HotmartProgressSyncLocal {
      * Criar log de sincronização
      */
     private function createSyncLog($syncType) {
+        $this->reconnectIfNeeded();
         $syncId = $this->generateUUID();
         $stmt = $this->pdo->prepare("
             INSERT INTO hotmart_sync_logs 
@@ -407,12 +408,17 @@ class HotmartProgressSyncLocal {
      * Atualizar log de sincronização
      */
     private function updateSyncLog($syncId, $usersSynced, $errorsCount, $status, $message) {
-        $stmt = $this->pdo->prepare("
-            UPDATE hotmart_sync_logs 
-            SET users_synced = ?, errors_count = ?, status = ?, message = ?, completed_at = NOW()
-            WHERE id = ?
-        ");
-        $stmt->execute([$usersSynced, $errorsCount, $status, $message, $syncId]);
+        try {
+            $this->reconnectIfNeeded();
+            $stmt = $this->pdo->prepare("
+                UPDATE hotmart_sync_logs 
+                SET users_synced = ?, errors_count = ?, status = ?, message = ?, completed_at = NOW()
+                WHERE id = ?
+            ");
+            $stmt->execute([$usersSynced, $errorsCount, $status, $message, $syncId]);
+        } catch (PDOException $e) {
+            $this->log('Erro ao atualizar sync log: ' . $e->getMessage(), 'ERROR');
+        }
     }
     
     /**
