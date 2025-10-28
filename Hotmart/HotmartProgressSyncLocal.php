@@ -85,31 +85,53 @@ class HotmartProgressSyncLocal {
             
             $this->log('Total de usuários locais com dados Hotmart: ' . count($localUsers));
             
-            // 2. Para cada usuário, tentar buscar progresso
+            // 2. Processar em lotes de 50 usuários para evitar timeout
+            $batchSize = 50;
+            $totalBatches = ceil(count($localUsers) / $batchSize);
+            
             $usersProcessed = 0;
             $progressRecords = 0;
             $errorsCount = 0;
             $usersWithProgress = 0;
             
-            foreach ($localUsers as $user) {
-                try {
-                    $result = $this->syncUserProgressLocal($user);
-                    if ($result['success']) {
-                        $usersProcessed++;
-                        $progressRecords += $result['progress_records'];
-                        if ($result['progress_records'] > 0) {
-                            $usersWithProgress++;
+            for ($batch = 0; $batch < $totalBatches; $batch++) {
+                $offset = $batch * $batchSize;
+                $batchUsers = array_slice($localUsers, $offset, $batchSize);
+                
+                $this->log("Processando lote " . ($batch + 1) . "/{$totalBatches} (" . count($batchUsers) . " usuários)");
+                
+                foreach ($batchUsers as $user) {
+                    try {
+                        // Verificar conexão a cada 10 usuários
+                        if ($usersProcessed % 10 === 0) {
+                            $this->reconnectIfNeeded();
                         }
-                    } else {
+                        
+                        $result = $this->syncUserProgressLocal($user);
+                        if ($result['success']) {
+                            $usersProcessed++;
+                            $progressRecords += $result['progress_records'];
+                            if ($result['progress_records'] > 0) {
+                                $usersWithProgress++;
+                            }
+                        } else {
+                            $errorsCount++;
+                        }
+                    } catch (Exception $e) {
                         $errorsCount++;
+                        $this->log('Erro ao processar usuário ' . $user['email'] . ': ' . $e->getMessage(), 'ERROR');
                     }
-                } catch (Exception $e) {
-                    $errorsCount++;
-                    $this->log('Erro ao processar usuário ' . $user['email'] . ': ' . $e->getMessage(), 'ERROR');
+                    
+                    // Pequena pausa para não sobrecarregar a API
+                    usleep(100000); // 0.1 segundo
                 }
                 
-                // Pequena pausa para não sobrecarregar a API
-                usleep(100000); // 0.1 segundo
+                // Log de progresso do lote
+                $this->log("Lote " . ($batch + 1) . " concluído: {$usersProcessed} processados, {$usersWithProgress} com progresso");
+                
+                // Atualizar log intermediário
+                $this->updateSyncLog($syncId, $usersProcessed, $errorsCount, 'RUNNING', 
+                    "Em progresso: {$usersProcessed}/{" . count($localUsers) . "} usuários");
             }
             
             $duration = round(microtime(true) - $startTime, 2);
