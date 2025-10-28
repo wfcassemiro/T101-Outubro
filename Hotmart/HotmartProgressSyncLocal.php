@@ -266,7 +266,7 @@ class HotmartProgressSyncLocal {
     /**
      * Sincronizar progresso de um usuário específico do banco local
      */
-    private function syncUserProgressLocal($user) {
+    private function syncUserProgressLocal($user, $subscriptionMap = []) {
         $userId = $user['id'];
         $email = $user['email'];
         $name = $user['name'];
@@ -296,11 +296,23 @@ class HotmartProgressSyncLocal {
         if ($hotmartSubId) {
             $this->log("  → Tentando obter ucode do subscription_id: {$hotmartSubId}");
             
-            // Buscar detalhes da assinatura para pegar o ucode do subscriber
+            // Primeiro, tentar usar o mapeamento pré-carregado
+            if (isset($subscriptionMap[$hotmartSubId])) {
+                $ucode = $subscriptionMap[$hotmartSubId];
+                $this->log("  ✓ Ucode encontrado no mapeamento: {$ucode}");
+                
+                // Salvar o ucode no banco para uso futuro
+                $this->updateUserHotmartUcode($userId, $ucode);
+                
+                // Buscar progresso com o ucode
+                return $this->fetchAndSaveProgress($userId, $ucode, $email);
+            }
+            
+            // Fallback: buscar individualmente (método antigo)
             $ucode = $this->getUcodeFromSubscription($hotmartSubId);
             
             if ($ucode) {
-                $this->log("  ✓ Ucode obtido: {$ucode}");
+                $this->log("  ✓ Ucode obtido via API individual: {$ucode}");
                 
                 // Salvar o ucode no banco para uso futuro
                 $this->updateUserHotmartUcode($userId, $ucode);
