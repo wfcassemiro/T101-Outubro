@@ -176,27 +176,65 @@ class HotmartProgressSyncLocal {
         $map = [];
         
         try {
+            $this->log('  → Chamando getSubscriptions(ACTIVE)...');
             $result = $this->hotmartApi->getSubscriptions('ACTIVE');
             
-            if ($result['success'] && isset($result['data']['items'])) {
-                foreach ($result['data']['items'] as $subscription) {
-                    $subId = $subscription['subscription_id'] ?? null;
-                    $ucode = $subscription['subscriber']['ucode'] 
-                            ?? $subscription['subscriber']['subscriber_code']
-                            ?? $subscription['subscriber']['code']
-                            ?? null;
+            // LOG DETALHADO DA RESPOSTA
+            $this->log('  ← Resposta da API Subscriptions:');
+            $this->log('    - Success: ' . ($result['success'] ? 'true' : 'false'));
+            $this->log('    - HTTP Code: ' . ($result['http_code'] ?? 'N/A'));
+            
+            if (isset($result['data'])) {
+                if (isset($result['data']['items'])) {
+                    $this->log('    - Subscriptions encontradas: ' . count($result['data']['items']));
                     
-                    if ($subId && $ucode) {
-                        $map[$subId] = $ucode;
+                    // Mostrar exemplo da estrutura
+                    if (!empty($result['data']['items'])) {
+                        $firstSub = $result['data']['items'][0];
+                        $this->log('    - Exemplo (primeiro item): ' . json_encode($firstSub, JSON_UNESCAPED_UNICODE));
                     }
+                    
+                    foreach ($result['data']['items'] as $subscription) {
+                        $subId = $subscription['subscription_id'] ?? null;
+                        
+                        // Tentar diferentes caminhos para o ucode
+                        $ucode = null;
+                        if (isset($subscription['subscriber']['ucode'])) {
+                            $ucode = $subscription['subscriber']['ucode'];
+                        } elseif (isset($subscription['subscriber']['subscriber_code'])) {
+                            $ucode = $subscription['subscriber']['subscriber_code'];
+                        } elseif (isset($subscription['subscriber']['code'])) {
+                            $ucode = $subscription['subscriber']['code'];
+                        } elseif (isset($subscription['subscriber']['email'])) {
+                            // Se não tem ucode, logar para investigação
+                            $this->log("    ! Subscription {$subId} não tem ucode, apenas email: " . $subscription['subscriber']['email'], 'WARNING');
+                        }
+                        
+                        if ($subId && $ucode) {
+                            $map[$subId] = $ucode;
+                            $this->log("    + Mapeado: {$subId} → {$ucode}");
+                        } elseif ($subId) {
+                            $this->log("    - Subscription {$subId} sem ucode válido", 'WARNING');
+                        }
+                    }
+                } else {
+                    $this->log('    - Sem "items" em data');
+                    $this->log('    - Chaves disponíveis em data: ' . json_encode(array_keys($result['data']), JSON_UNESCAPED_UNICODE));
                 }
-                
-                $this->log("  Mapeadas " . count($map) . " assinaturas: subscription_id -> ucode");
             } else {
-                $this->log("  Falha ao buscar assinaturas para mapeamento", 'WARNING');
+                $this->log('    - Sem "data" na resposta');
+                $this->log('    - Resposta completa: ' . json_encode($result, JSON_UNESCAPED_UNICODE));
             }
+            
+            $this->log("  ✓ Mapeadas " . count($map) . " assinaturas: subscription_id → ucode");
+            
+            if (count($map) === 0) {
+                $this->log("  ⚠️ ATENÇÃO: Nenhuma assinatura foi mapeada!", 'WARNING');
+                $this->log("  Isso significa que a API não retornou assinaturas ou não têm ucode", 'WARNING');
+            }
+            
         } catch (Exception $e) {
-            $this->log("  Erro ao criar mapeamento: " . $e->getMessage(), 'ERROR');
+            $this->log("  ✗ Erro ao criar mapeamento: " . $e->getMessage(), 'ERROR');
         }
         
         return $map;
