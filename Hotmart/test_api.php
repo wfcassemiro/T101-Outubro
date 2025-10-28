@@ -10,9 +10,9 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 // Incluir arquivos necessários
-require_once __DIR__ . '/../public_html/v/config/database.php';
-require_once __DIR__ . '/../public_html/v/config/hotmart.php';
-require_once __DIR__ . '/../public_html/v/hotmart.php';
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/hotmart.php';
+require_once __DIR__ . '/../hotmart.php';
 
 ?>
 <!DOCTYPE html>
