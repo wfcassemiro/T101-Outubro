@@ -16,11 +16,12 @@ class HotmartProgressSyncLocal {
         $this->logFile = __DIR__ . '/../logs/hotmart_progress_sync_local.log';
         
         // Salvar configuração do banco para reconexão
+        // Usar as mesmas variáveis do config/database.php
         $this->dbConfig = [
-            'host' => DB_HOST,
-            'name' => DB_NAME,
-            'user' => DB_USER,
-            'pass' => DB_PASS
+            'host' => 'localhost',
+            'name' => 'u335416710_t101_db',
+            'user' => 'u335416710_t101',
+            'pass' => 'Pa392ap!'
         ];
     }
     
