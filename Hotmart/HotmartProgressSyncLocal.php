@@ -8,11 +8,49 @@ class HotmartProgressSyncLocal {
     private $pdo;
     private $hotmartApi;
     private $logFile;
+    private $dbConfig;
     
     public function __construct($pdo, $hotmartApi) {
         $this->pdo = $pdo;
         $this->hotmartApi = $hotmartApi;
         $this->logFile = __DIR__ . '/../logs/hotmart_progress_sync_local.log';
+        
+        // Salvar configuração do banco para reconexão
+        $this->dbConfig = [
+            'host' => DB_HOST,
+            'name' => DB_NAME,
+            'user' => DB_USER,
+            'pass' => DB_PASS
+        ];
+    }
+    
+    /**
+     * Reconectar ao banco se conexão caiu
+     */
+    private function reconnectIfNeeded() {
+        try {
+            // Tentar fazer um ping simples
+            $this->pdo->query('SELECT 1');
+        } catch (PDOException $e) {
+            $this->log('Conexão perdida, reconectando...', 'WARNING');
+            try {
+                $this->pdo = new PDO(
+                    "mysql:host={$this->dbConfig['host']};dbname={$this->dbConfig['name']};charset=utf8mb4",
+                    $this->dbConfig['user'],
+                    $this->dbConfig['pass'],
+                    [
+                        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                        PDO::ATTR_EMULATE_PREPARES => false,
+                        PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4"
+                    ]
+                );
+                $this->log('Reconexão bem-sucedida!', 'INFO');
+            } catch (PDOException $e2) {
+                $this->log('Falha na reconexão: ' . $e2->getMessage(), 'ERROR');
+                throw $e2;
+            }
+        }
     }
     
     /**
