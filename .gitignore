@@ -79,3 +79,7 @@ agenthub/agents/youtube/db
 # Mobile development
 android-sdk/ temp_repo/.git/objects/pack/pack-e154a4d72d73f0c68095b2d8bae73fb1ff39427b.pack
 temp_repo/.git/objects/pack/pack-e154a4d72d73f0c68095b2d8bae73fb1ff39427b.pack
+-e 
+# Environment files
+*.env
+*.env.*
