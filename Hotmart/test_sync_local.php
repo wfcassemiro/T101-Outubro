@@ -235,17 +235,29 @@ $usersWithHotmart = $stmt->fetch()['total'];
             
             const btn = document.getElementById('syncBtn');
             const resultDiv = document.getElementById('syncResult');
+            const progressDiv = document.getElementById('syncProgress');
             
             btn.disabled = true;
             btn.innerHTML = 'Sincronizando... <span class="loading"></span>';
-            resultDiv.innerHTML = '<div class="alert alert-info">Processando usuários locais, aguarde...</div>';
+            progressDiv.innerHTML = '<div class="alert alert-info">⏳ Processando usuários locais, isso pode levar alguns minutos...<br>Aguarde, não feche esta página.</div>';
+            resultDiv.innerHTML = '';
+            
+            // Fazer requisição com timeout maior
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 600000); // 10 minutos
             
             fetch('?action=sync', {
                 method: 'POST',
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                signal: controller.signal
             })
-            .then(response => response.json())
+            .then(response => {
+                clearTimeout(timeoutId);
+                return response.json();
+            })
             .then(data => {
+                progressDiv.innerHTML = '';
+                
                 if (data.success) {
                     resultDiv.innerHTML = `
                         <div class="alert alert-success">
@@ -257,7 +269,7 @@ $usersWithHotmart = $stmt->fetch()['total'];
                             Duração: ${data.duration || 0}s
                         </div>
                     `;
-                    setTimeout(() => location.reload(), 2000);
+                    setTimeout(() => location.reload(), 3000);
                 } else {
                     resultDiv.innerHTML = `
                         <div class="alert alert-error">
@@ -268,12 +280,27 @@ $usersWithHotmart = $stmt->fetch()['total'];
                 }
             })
             .catch(error => {
-                resultDiv.innerHTML = `
-                    <div class="alert alert-error">
-                        <strong>❌ Erro de conexão:</strong><br>
-                        ${error.message}
-                    </div>
-                `;
+                clearTimeout(timeoutId);
+                progressDiv.innerHTML = '';
+                
+                if (error.name === 'AbortError') {
+                    resultDiv.innerHTML = `
+                        <div class="alert alert-warning">
+                            <strong>⏱️ Timeout:</strong><br>
+                            A sincronização demorou muito. Verifique os logs para ver o progresso:<br>
+                            <a href="../logs/hotmart_progress_sync_local.log" target="_blank" style="color: #856404; text-decoration: underline;">Ver Logs</a>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="alert alert-error">
+                            <strong>❌ Erro de conexão:</strong><br>
+                            ${error.message}<br><br>
+                            Verifique os logs para mais detalhes:<br>
+                            <a href="../logs/hotmart_progress_sync_local.log" target="_blank" style="color: #721c24; text-decoration: underline;">Ver Logs</a>
+                        </div>
+                    `;
+                }
             })
             .finally(() => {
                 btn.disabled = false;
