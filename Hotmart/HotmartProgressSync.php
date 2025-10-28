@@ -104,21 +104,64 @@ class HotmartProgressSync {
         $this->log('Tentando obter usuários do Hotmart Club...');
         $clubResult = $this->hotmartApi->getClubUsers($this->subdomain);
         
+        // LOG DETALHADO DA RESPOSTA DO CLUB
+        $this->log('=== RESPOSTA COMPLETA DO CLUB API ===');
+        $this->log('Success: ' . ($clubResult['success'] ? 'true' : 'false'));
+        $this->log('Response: ' . json_encode($clubResult, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+        
         if ($clubResult['success']) {
-            $users = $clubResult['data']['items'] ?? $clubResult['data'] ?? [];
-            $this->log('Usuários obtidos do Club: ' . count($users));
+            // Tentar diferentes estruturas de resposta
+            if (isset($clubResult['data']['items'])) {
+                $users = $clubResult['data']['items'];
+                $this->log('Usuários em data->items: ' . count($users));
+            } elseif (isset($clubResult['data']) && is_array($clubResult['data'])) {
+                $users = $clubResult['data'];
+                $this->log('Usuários em data: ' . count($users));
+            } elseif (isset($clubResult['items'])) {
+                $users = $clubResult['items'];
+                $this->log('Usuários em items: ' . count($users));
+            } else {
+                $this->log('Estrutura não reconhecida. Chaves disponíveis: ' . implode(', ', array_keys($clubResult)));
+            }
+            
+            $this->log('Total de usuários do Club: ' . count($users));
+            
+            // Se ainda está vazio, logar estrutura completa
+            if (empty($users)) {
+                $this->log('AVISO: Nenhum usuário encontrado, mas API retornou sucesso!', 'WARNING');
+                $this->log('Pode significar que não há usuários no Club ou estrutura diferente', 'WARNING');
+            }
         } else {
             $this->log('Falha ao obter usuários do Club, tentando assinaturas...', 'WARNING');
             
             // Fallback: tentar obter assinaturas
             $subsResult = $this->hotmartApi->getSubscriptions('ACTIVE');
+            
+            // LOG DETALHADO DA RESPOSTA DE SUBSCRIPTIONS
+            $this->log('=== RESPOSTA COMPLETA DO SUBSCRIPTIONS API ===');
+            $this->log('Success: ' . ($subsResult['success'] ? 'true' : 'false'));
+            $this->log('Response: ' . json_encode($subsResult, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+            
             if ($subsResult['success']) {
-                $users = $subsResult['data']['items'] ?? $subsResult['data'] ?? [];
-                $this->log('Usuários obtidos de assinaturas: ' . count($users));
+                if (isset($subsResult['data']['items'])) {
+                    $users = $subsResult['data']['items'];
+                    $this->log('Usuários em data->items: ' . count($users));
+                } elseif (isset($subsResult['data']) && is_array($subsResult['data'])) {
+                    $users = $subsResult['data'];
+                    $this->log('Usuários em data: ' . count($users));
+                } elseif (isset($subsResult['items'])) {
+                    $users = $subsResult['items'];
+                    $this->log('Usuários em items: ' . count($users));
+                }
+                
+                $this->log('Total de usuários de assinaturas: ' . count($users));
             } else {
                 $this->log('Falha ao obter assinaturas: ' . json_encode($subsResult), 'ERROR');
             }
         }
+        
+        // LOG FINAL
+        $this->log('=== TOTAL DE USUÁRIOS PARA PROCESSAR: ' . count($users) . ' ===');
         
         return $users;
     }
