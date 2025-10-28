@@ -233,7 +233,7 @@ class HotmartProgressSyncLocal {
         $email = $user['email'];
         $name = $user['name'];
         
-        // Prioridade: hotmart_ucode > hotmart_subscription_id > email
+        // Prioridade: hotmart_ucode > hotmart_subscription_id
         $hotmartUcode = $user['hotmart_ucode'] ?? null;
         $hotmartSubId = $user['hotmart_subscription_id'] ?? null;
         
@@ -242,28 +242,85 @@ class HotmartProgressSyncLocal {
         $this->log("  - hotmart_ucode: " . ($hotmartUcode ?: 'NULL'));
         $this->log("  - hotmart_subscription_id: " . ($hotmartSubId ?: 'NULL'));
         
-        // Decidir qual ID usar
-        $hotmartId = null;
-        $idType = null;
-        
-        if ($hotmartUcode) {
-            $hotmartId = $hotmartUcode;
-            $idType = 'ucode';
-        } elseif ($hotmartSubId) {
-            $hotmartId = $hotmartSubId;
-            $idType = 'subscription_id';
-        }
-        
-        if (!$hotmartId) {
+        // Se não tem nenhum ID, pular
+        if (!$hotmartUcode && !$hotmartSubId) {
             $this->log("  ⚠️ Usuário sem hotmart_ucode ou hotmart_subscription_id, pulando...", 'WARNING');
             return ['success' => false, 'message' => 'Sem identificador Hotmart'];
         }
         
-        $this->log("  ✓ Usando {$idType}: {$hotmartId}");
+        // Se tem ucode, usar diretamente
+        if ($hotmartUcode) {
+            $this->log("  ✓ Usando ucode: {$hotmartUcode}");
+            return $this->fetchAndSaveProgress($userId, $hotmartUcode, $email);
+        }
         
-        // Tentar buscar progresso
-        $this->log("  → Chamando getUserProgress({$hotmartId})...");
-        $progressResult = $this->hotmartApi->getUserProgress($hotmartId);
+        // Se só tem subscription_id, tentar obter o ucode primeiro
+        if ($hotmartSubId) {
+            $this->log("  → Tentando obter ucode do subscription_id: {$hotmartSubId}");
+            
+            // Buscar detalhes da assinatura para pegar o ucode do subscriber
+            $ucode = $this->getUcodeFromSubscription($hotmartSubId);
+            
+            if ($ucode) {
+                $this->log("  ✓ Ucode obtido: {$ucode}");
+                
+                // Salvar o ucode no banco para uso futuro
+                $this->updateUserHotmartUcode($userId, $ucode);
+                
+                // Buscar progresso com o ucode
+                return $this->fetchAndSaveProgress($userId, $ucode, $email);
+            } else {
+                $this->log("  ✗ Não foi possível obter ucode do subscription_id", 'WARNING');
+                return ['success' => false, 'message' => 'Não foi possível obter ucode'];
+            }
+        }
+        
+        return ['success' => false, 'message' => 'Sem identificador válido'];
+    }
+    
+    /**
+     * Obter ucode a partir do subscription_id
+     */
+    private function getUcodeFromSubscription($subscriptionId) {
+        try {
+            // Buscar detalhes da assinatura
+            $this->log("    → Buscando detalhes da subscription {$subscriptionId}");
+            
+            // A API de subscriptions retorna os dados do subscriber
+            $result = $this->hotmartApi->getSubscriptions('ACTIVE');
+            
+            if ($result['success'] && isset($result['data']['items'])) {
+                foreach ($result['data']['items'] as $subscription) {
+                    if (isset($subscription['subscription_id']) && $subscription['subscription_id'] == $subscriptionId) {
+                        // Encontrou a assinatura, extrair ucode do subscriber
+                        $ucode = $subscription['subscriber']['ucode'] 
+                                ?? $subscription['subscriber']['subscriber_code']
+                                ?? $subscription['subscriber']['code']
+                                ?? null;
+                        
+                        if ($ucode) {
+                            $this->log("    ✓ Ucode encontrado: {$ucode}");
+                            return $ucode;
+                        }
+                    }
+                }
+            }
+            
+            $this->log("    ✗ Subscription {$subscriptionId} não encontrada ou sem ucode");
+            return null;
+            
+        } catch (Exception $e) {
+            $this->log("    ✗ Erro ao buscar subscription: " . $e->getMessage(), 'ERROR');
+            return null;
+        }
+    }
+    
+    /**
+     * Buscar progresso e salvar
+     */
+    private function fetchAndSaveProgress($userId, $ucode, $email) {
+        $this->log("  → Chamando getUserProgress({$ucode})...");
+        $progressResult = $this->hotmartApi->getUserProgress($ucode);
         
         // LOG DETALHADO DA RESPOSTA DA API
         $this->log("  ← Resposta da API:");
@@ -301,15 +358,10 @@ class HotmartProgressSyncLocal {
         }
         
         // Processar e salvar dados de progresso
-        $progressRecords = $this->processProgressData($userId, $hotmartId, $progressData);
+        $progressRecords = $this->processProgressData($userId, $ucode, $progressData);
         
         // Atualizar timestamp
         $this->updateUserSyncTimestamp($userId);
-        
-        // Atualizar hotmart_ucode se não estava preenchido
-        if (empty($user['hotmart_ucode']) && $hotmartId && $idType === 'ucode') {
-            $this->updateUserHotmartUcode($userId, $hotmartId);
-        }
         
         $this->log("  ✓ Progresso sincronizado: {$progressRecords} registros");
         
