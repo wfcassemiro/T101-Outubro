@@ -77,6 +77,11 @@ class HotmartProgressSyncLocal {
         $syncId = $this->createSyncLog('PROGRESS');
         
         try {
+            // 0. Buscar TODAS as assinaturas da Hotmart uma vez (para mapear subscription_id -> ucode)
+            $this->log('Buscando todas as assinaturas da Hotmart para mapear IDs...');
+            $subscriptionMap = $this->buildSubscriptionMap();
+            $this->log("Mapeamento criado com " . count($subscriptionMap) . " assinaturas");
+            
             // 1. Buscar usuários do banco local que têm dados Hotmart
             $localUsers = $this->getLocalUsersWithHotmart();
             
@@ -110,7 +115,7 @@ class HotmartProgressSyncLocal {
                             $this->reconnectIfNeeded();
                         }
                         
-                        $result = $this->syncUserProgressLocal($user);
+                        $result = $this->syncUserProgressLocal($user, $subscriptionMap);
                         if ($result['success']) {
                             $usersProcessed++;
                             $progressRecords += $result['progress_records'];
@@ -162,6 +167,39 @@ class HotmartProgressSyncLocal {
             $this->updateSyncLog($syncId, 0, 1, 'FAILED', $e->getMessage());
             return ['success' => false, 'message' => $e->getMessage()];
         }
+    }
+    
+    /**
+     * Construir mapeamento de subscription_id -> ucode
+     */
+    private function buildSubscriptionMap() {
+        $map = [];
+        
+        try {
+            $result = $this->hotmartApi->getSubscriptions('ACTIVE');
+            
+            if ($result['success'] && isset($result['data']['items'])) {
+                foreach ($result['data']['items'] as $subscription) {
+                    $subId = $subscription['subscription_id'] ?? null;
+                    $ucode = $subscription['subscriber']['ucode'] 
+                            ?? $subscription['subscriber']['subscriber_code']
+                            ?? $subscription['subscriber']['code']
+                            ?? null;
+                    
+                    if ($subId && $ucode) {
+                        $map[$subId] = $ucode;
+                    }
+                }
+                
+                $this->log("  Mapeadas " . count($map) . " assinaturas: subscription_id -> ucode");
+            } else {
+                $this->log("  Falha ao buscar assinaturas para mapeamento", 'WARNING');
+            }
+        } catch (Exception $e) {
+            $this->log("  Erro ao criar mapeamento: " . $e->getMessage(), 'ERROR');
+        }
+        
+        return $map;
     }
     
     /**
