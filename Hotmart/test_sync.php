@@ -403,6 +403,12 @@ try {
             </table>
         </div>
         <?php endif; ?>
+        
+        <div style="margin-top: 20px; text-align: center;">
+            <a href="test_api.php" style="color: white; text-decoration: none; opacity: 0.8;">Teste de API</a> | 
+            <a href="fix_auth.php" style="color: white; text-decoration: none; opacity: 0.8;">Correção de Autenticação</a> |
+            <a href="../logs/hotmart_progress_sync.log" target="_blank" style="color: white; text-decoration: none; opacity: 0.8;">Ver Logs</a>
+        </div>
     </div>
     
     <script>
