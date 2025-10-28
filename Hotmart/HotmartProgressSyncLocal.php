@@ -182,11 +182,16 @@ class HotmartProgressSyncLocal {
             WHERE 
                 is_active = 1
                 AND (
-                    hotmart_subscription_id IS NOT NULL 
-                    OR hotmart_ucode IS NOT NULL
-                    OR email LIKE '%@%'
+                    (hotmart_subscription_id IS NOT NULL AND hotmart_subscription_id != '')
+                    OR (hotmart_ucode IS NOT NULL AND hotmart_ucode != '')
                 )
-            ORDER BY created_at DESC
+            ORDER BY 
+                CASE 
+                    WHEN hotmart_ucode IS NOT NULL THEN 1
+                    WHEN hotmart_subscription_id IS NOT NULL THEN 2
+                    ELSE 3
+                END,
+                created_at DESC
             LIMIT 500
         ");
         
@@ -197,13 +202,25 @@ class HotmartProgressSyncLocal {
         // Estatísticas
         $withSubId = 0;
         $withUcode = 0;
+        $withBoth = 0;
+        
         foreach ($users as $user) {
-            if (!empty($user['hotmart_subscription_id'])) $withSubId++;
-            if (!empty($user['hotmart_ucode'])) $withUcode++;
+            $hasSubId = !empty($user['hotmart_subscription_id']);
+            $hasUcode = !empty($user['hotmart_ucode']);
+            
+            if ($hasSubId) $withSubId++;
+            if ($hasUcode) $withUcode++;
+            if ($hasSubId && $hasUcode) $withBoth++;
         }
         
         $this->log("  - Com hotmart_subscription_id: {$withSubId}");
         $this->log("  - Com hotmart_ucode: {$withUcode}");
+        $this->log("  - Com ambos: {$withBoth}");
+        
+        if (count($users) === 0) {
+            $this->log("⚠️ ATENÇÃO: Nenhum usuário tem hotmart_ucode ou hotmart_subscription_id!", 'WARNING');
+            $this->log("Os usuários precisam desses IDs para buscar progresso na API", 'WARNING');
+        }
         
         return $users;
     }
