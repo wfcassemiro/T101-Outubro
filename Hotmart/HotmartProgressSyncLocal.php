@@ -59,10 +59,12 @@ class HotmartProgressSyncLocal {
      */
     private function log($message, $level = 'INFO') {
         $timestamp = date('Y-m-d H:i:s');
-        // Garantir UTF-8
-        $message = mb_convert_encoding($message, 'UTF-8', 'UTF-8');
+        // Garantir UTF-8 adequadamente
+        if (!mb_check_encoding($message, 'UTF-8')) {
+            $message = utf8_encode($message);
+        }
         $logMessage = "[{$timestamp}] [{$level}] {$message}" . PHP_EOL;
-        file_put_contents($this->logFile, $logMessage, FILE_APPEND);
+        file_put_contents($this->logFile, $logMessage, FILE_APPEND | LOCK_EX);
         error_log($logMessage);
     }
     
