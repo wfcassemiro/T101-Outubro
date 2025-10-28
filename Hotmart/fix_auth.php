@@ -206,7 +206,7 @@ define('HOTMART_BASIC_AUTH', '<?php echo isset($basicAuth) ? $basicAuth : 'SEU_B
         <?php
         // Processar correção automática
         if (isset($_POST['apply_fix']) && isset($_POST['basic_auth'])) {
-            $configFile = __DIR__ . '/../public_html/v/config/hotmart.php';
+            $configFile = __DIR__ . '/../config/hotmart.php';
             $basicAuthValue = $_POST['basic_auth'];
             
             try {
