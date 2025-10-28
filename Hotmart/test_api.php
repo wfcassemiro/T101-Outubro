@@ -256,7 +256,7 @@ require_once __DIR__ . '/../hotmart.php';
         <div class="test-section">
             <h2>7. Logs da API Hotmart</h2>
             <?php
-            $logFile = __DIR__ . '/../public_html/v/logs/hotmart_api_debug.log';
+            $logFile = __DIR__ . '/../logs/hotmart_api_debug.log';
             
             if (file_exists($logFile)) {
                 echo '<span class="success">✓ Arquivo de log encontrado</span><br>';
