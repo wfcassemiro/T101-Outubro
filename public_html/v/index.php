@@ -99,7 +99,7 @@ include __DIR__ . '/vision/includes/head.php';
         </div>
 
         <div class="hero-content-conversion">
-            <h1 class="hero-headline">Transforme sua carreira em tradução com mais de 380 palestras especializadas</h1>
+            <h1 class="hero-headline">Transforme sua carreira em tradução com mais de 400 palestras especializadas</h1>
             <p class="hero-subheadline">Acesse conteúdo exclusivo dos melhores profissionais do mercado e acelere seu crescimento profissional hoje mesmo!</p>
 
             <div class="social-proof-hero">
@@ -109,7 +109,7 @@ include __DIR__ . '/vision/includes/head.php';
                 </div>
                 <div class="proof-item">
                     <i class="fas fa-video"></i>
-                    <span><strong>+380</strong> palestras disponíveis</span>
+                    <span><strong>+400</strong> palestras disponíveis</span>
                 </div>
                 <div class="proof-item">
                     <i class="fas fa-calendar-week"></i>
@@ -226,7 +226,7 @@ include __DIR__ . '/vision/includes/head.php';
                                 <i class="fas fa-check-circle"></i>
                             </div>
                             <h4>Preço justo e acessível</h4>
-                            <p>Acesso completo a +380 palestras por menos de R$ 2,00 por dia</p>
+                            <p>Acesso completo a +400 palestras por menos de R$ 2,00 por dia</p>
                         </div>
 
                         <div class="solution-card fade-item">
@@ -716,7 +716,7 @@ include __DIR__ . '/vision/includes/head.php';
                     <div class="stat-label">Profissionais já transformaram suas carreiras</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-number">+380</div>
+                    <div class="stat-number">+400</div>
                     <div class="stat-label">Palestras esperando por você</div>
                 </div>
                 <div class="stat-item">
@@ -1977,12 +1977,11 @@ include __DIR__ . '/vision/includes/head.php';
 }
 
 .creator-image img {
-    width: 300px;
-    height: 300px;
-    border-radius: 25px;
+    border-radius: 50% !important; /* Garante um círculo perfeito */
     border: 4px solid var(--accent-gold);
     box-shadow: 0 20px 50px rgba(243, 156, 18, 0.4);
     object-fit: cover;
+    object-position: center top; /* Centraliza a imagem no topo */
 }
 
 /* Final CTA */
@@ -2325,6 +2324,67 @@ include __DIR__ . '/vision/includes/head.php';
         padding: 12px 14px;
     }
 }
+
+/* ==============================================
+   CORREÇÕES SOLICITADAS
+   ============================================== */
+
+/* 1. Corrige a imagem do criador para ser circular e bem enquadrada */
+.creator-image img {
+    border-radius: 50% !important; /* Garante um círculo perfeito */
+    border: 4px solid var(--accent-gold);
+    box-shadow: 0 20px 50px rgba(243, 156, 18, 0.4);
+    object-fit: cover;
+    object-position: center top; /* Centraliza a imagem no topo */
+}
+
+/* 2. Corrige o deslocamento do conteúdo principal */
+.main-content {
+    /* Remove qualquer deslocamento estático e prepara para a animação */
+    margin-left: 0; 
+    transition: margin-left 0.4s ease; /* Adiciona uma transição suave */
+}
+
+/* Aplica o deslocamento SOMENTE quando o menu estiver aberto.
+   É necessário que seu JavaScript adicione a classe 'sidebar-open' 
+   ao <body> quando o menu for ativado.
+*/
+body.sidebar-open .main-content {
+    /* Ajuste '280px' para a largura exata da sua sidebar */
+    margin-left: 280px; 
+}
+
+/*
+  Ajuste de tamanho da imagem
+*/
+
+.creator-image {
+    /* ADICIONE ESTAS DUAS LINHAS PARA CONTROLAR O TAMANHO */
+    width: 250px;
+    height: 250px;
+
+    /* Suas regras que já funcionam: */
+    border-radius: 50% !important;
+    overflow: hidden;
+    border: 5px solid var(--brand-purple);
+    box-shadow: 0 0 20px rgba(142, 68, 173, .5);
+    margin-bottom: 20px;
+}
+
+.creator-image img {
+    /* Estas duas linhas garantem que a imagem preencha o contêiner */
+    width: 100%;
+    height: 100%;
+    
+    /* Suas regras que já funcionam: */
+    border-radius: 50% !important;
+    border: 4px solid var(--accent-gold);
+    box-shadow: 0 20px 50px rgba(243, 156, 18, 0.4);
+    object-fit: cover !important;
+    object-position: center top !important;
+}
+
+
 </style>
 
 <script>

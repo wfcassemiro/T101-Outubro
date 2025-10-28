@@ -1,205 +1,246 @@
 <?php
-
-require_once __DIR__ . '/includes/hotmart_logger.php';
-
-class Hotmart {
+/**
+ * Hotmart API Integration Class
+ * Handles authentication and API requests for Hotmart services
+ */
+class HotmartAPI {
     private $clientId;
     private $clientSecret;
-    private $basicToken;
+    private $basicAuth;
+    private $hotToken;
     private $accessToken;
-    private $baseUrl;
-    private $oauthUrl;
-    private $subscriptionsBaseUrl;
-
-    public function __construct($config = null) {
-        if (file_exists(__DIR__ . '/config/hotmart.php')) {
-            require_once __DIR__ . '/config/hotmart.php';
-        }
-
-        if (empty($config) && defined('HOTMART_CLIENT_ID') && defined('HOTMART_CLIENT_SECRET')) {
-            $config = [
-                'client_id' => HOTMART_CLIENT_ID,
-                'client_secret' => HOTMART_CLIENT_SECRET,
-                'basic_token' => base64_encode(HOTMART_CLIENT_ID . ':' . HOTMART_CLIENT_SECRET)
-            ];
-            writeToHotmartApiLog("Credenciais carregadas de constantes.", "HOTMART_CLASS");
-        }
-
-        if (empty($config) || !isset($config['client_id']) || !isset($config['client_secret']) || !isset($config['basic_token'])) {
-            writeToHotmartApiLog("Credenciais Hotmart API (client_id, client_secret, basic_token) ausentes ou configuradas incorretamente.", "HOTMART_CLASS_ERROR");
-            throw new Exception("Hotmart API credentials (client_id, client_secret, basic_token) are missing or incorrectly configured.");
-        }
-
-        $this->clientId = $config['client_id'];
-        $this->clientSecret = $config['client_secret'];
-        $this->basicToken = $config['basic_token'];
-
-        // URLs atualizadas conforme documentação oficial da Hotmart
-        $this->baseUrl = defined('HOTMART_API_BASE') ? HOTMART_API_BASE . '/v1' : 'https://api.hotmart.com/v1';
-        $this->oauthUrl = defined('HOTMART_TOKEN_URL') ? HOTMART_TOKEN_URL : 'https://api-sec-vlc.hotmart.com/security/oauth/token';
-        $this->subscriptionsBaseUrl = 'https://developers.hotmart.com/payments/api/v1';
+    private $baseUrl = 'https://developers.hotmart.com';
+    private $oauthUrl = 'https://api-sec-vlc.hotmart.com/security/oauth/token';
+    private $subscriptionsUrl = 'https://developers.hotmart.com/payments/api/v1';
+    private $clubBaseUrl = 'https://developers.hotmart.com/club/api/v1';
+    
+    public function __construct() {
+        $this->clientId = defined('HOTMART_CLIENT_ID') ? HOTMART_CLIENT_ID : '';
+        $this->clientSecret = defined('HOTMART_CLIENT_SECRET') ? HOTMART_CLIENT_SECRET : '';
+        $this->basicAuth = defined('HOTMART_BASIC_AUTH') ? HOTMART_BASIC_AUTH : '';
+        $this->hotToken = defined('HOTMART_HOT_TOKEN') ? HOTMART_HOT_TOKEN : '';
         
-        writeToHotmartApiLog("Hotmart API Base URL: " . $this->baseUrl . ", OAuth URL: " . $this->oauthUrl . ", Subscriptions URL: " . $this->subscriptionsBaseUrl, "HOTMART_CLASS");
+        error_log("[HOTMART_CLASS] Credenciais carregadas de constantes.");
+        error_log("[HOTMART_CLASS] Hotmart API Base URL: {$this->baseUrl}, OAuth URL: {$this->oauthUrl}, Subscriptions URL: {$this->subscriptionsUrl}, Club URL: {$this->clubBaseUrl}, HOT Token: " . (!empty($this->hotToken) ? 'Configurado' : 'Não configurado'));
     }
-
-    public function setAccessToken($token) {
-        $this->accessToken = $token;
-    }
-
-    private function _makeRequest($endpoint, $method = 'GET', $data = [], $queryParams = [], $customBaseUrl = null) {
-        $baseUrlToUse = $customBaseUrl ?? $this->baseUrl;
-        $url = $baseUrlToUse . $endpoint;
-
-        if (!empty($queryParams)) {
-            $url .= '?' . http_build_query($queryParams);
-        }
-
-        $headers = [];
-        if ($this->accessToken) {
-            $headers[] = 'Authorization: Bearer ' . $this->accessToken;
-        } else {
-            $headers[] = 'Authorization: Basic ' . $this->basicToken;
-        }
-        $headers[] = 'Content-Type: application/json';
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($ch, CURLOPT_MAXREDIRS, 10);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-
-        if ($method == 'POST') {
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-        }
-
-        writeToHotmartApiLog("Fazendo requisição $method para: $url", "HOTMART_API_REQUEST");
-
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $error = curl_error($ch);
-        curl_close($ch);
-
-        if ($error) {
-            writeToHotmartApiLog("Erro cURL: $error", "HOTMART_API_ERROR");
-            return ['success' => false, 'message' => 'Erro cURL: ' . $error];
-        }
-
-        $decodedResponse = json_decode($response, true);
-
-        writeToHotmartApiLog("Resposta HTTP $httpCode: " . substr($response, 0, 500), "HOTMART_API_RESPONSE");
-
-        if ($httpCode >= 200 && $httpCode < 300) {
-            return ['success' => true, 'data' => $decodedResponse];
-        } else {
-            return ['success' => false, 'message' => 'Erro na API (' . $httpCode . '): ' . ($decodedResponse['message'] ?? $response), 'response' => $decodedResponse];
-        }
-    }
-
+    
+    /**
+     * Get OAuth access token
+     */
     public function getAccessToken() {
-        $headers = [
-            'Authorization: Basic ' . $this->basicToken,
-            'Content-Type: application/x-www-form-urlencoded',
-        ];
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $this->oauthUrl);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
-
-        $postData = http_build_query(['grant_type' => 'client_credentials']);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
-
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($ch, CURLOPT_MAXREDIRS, 10);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-
-        writeToHotmartApiLog("Solicitando access token para: " . $this->oauthUrl, "HOTMART_TOKEN_REQUEST");
-
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $error = curl_error($ch);
-        curl_close($ch);
-
-        if ($error) {
-            writeToHotmartApiLog("Erro cURL ao obter token: $error", "HOTMART_TOKEN_ERROR");
-            return ['success' => false, 'message' => 'Erro cURL ao obter token: ' . $error];
+        if (!empty($this->accessToken)) {
+            return $this->accessToken;
         }
-
-        $decodedResponse = json_decode($response, true);
-
-        writeToHotmartApiLog("Resposta do token HTTP $httpCode: " . substr($response, 0, 200), "HOTMART_TOKEN_RESPONSE");
-
-        if ($httpCode == 200 && isset($decodedResponse['access_token'])) {
-            $this->accessToken = $decodedResponse['access_token'];
-            writeToHotmartApiLog("Access token obtido com sucesso", "HOTMART_TOKEN_SUCCESS");
-            return ['success' => true, 'access_token' => $this->accessToken];
-        } else {
-            writeToHotmartApiLog("Erro ao obter token: " . json_encode($decodedResponse), "HOTMART_TOKEN_ERROR");
-            return ['success' => false, 'message' => 'Erro ao obter token (' . $httpCode . '): ' . ($decodedResponse['error_description'] ?? ($decodedResponse['error'] ?? $response)), 'response' => $decodedResponse];
+        
+        error_log("[HOTMART_TOKEN_REQUEST] Solicitando access token para: {$this->oauthUrl}");
+        
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => $this->oauthUrl,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => 'grant_type=client_credentials&client_id=' . urlencode($this->clientId) . '&client_secret=' . urlencode($this->clientSecret),
+            CURLOPT_HTTPHEADER => array(
+                'Authorization: Basic ' . $this->basicAuth,
+                'Content-Type: application/x-www-form-urlencoded'
+            ),
+        ));
+        
+        $response = curl_exec($curl);
+        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        $err = curl_error($curl);
+        curl_close($curl);
+        
+        if ($err) {
+            error_log("[HOTMART_TOKEN_ERROR] Erro cURL: $err");
+            return false;
         }
+        
+        error_log("[HOTMART_TOKEN_RESPONSE] Resposta do token HTTP {$httpCode}: " . substr($response, 0, 200) . "...");
+        
+        $tokenData = json_decode($response, true);
+        if (isset($tokenData['access_token'])) {
+            $this->accessToken = $tokenData['access_token'];
+            error_log("[HOTMART_TOKEN_SUCCESS] Access token obtido com sucesso");
+            return $this->accessToken;
+        }
+        
+        error_log("[HOTMART_TOKEN_ERROR] Falha ao obter access token: $response");
+        return false;
     }
-
-    // Faz uma requisição para cada status e retorna todos os resultados juntos
-    public function getSubscriptions($params = []) {
-        $allResults = [];
-        $statuses = [
-            'ACTIVE',
-            'CANCELLED',
-            'CANCELLED_BY_CUSTOMER',
-            'CANCELLED_BY_ADMIN',
-            'OVERDUE',
-            'GRACE_PERIOD'
-        ];
-
-        foreach ($statuses as $status) {
-            $apiParams = [];
-            $apiParams['max_results'] = $params['max_results'] ?? 100;
-            $params = [
-    'max_results' => 100,
-    'accession_date_start' => '2020-01-01T00:00:00Z',
-];
-            // $apiParams['status'] = $status;
-            // Se quiser filtrar por product_id, descomente a linha abaixo:
-            // if (isset($params['product_id'])) $apiParams['product_id'] = $params['product_id'];
-
-            $page_token = null;
-            do {
-                if ($page_token) {
-                    $apiParams['page_token'] = $page_token;
-                } else {
-                    unset($apiParams['page_token']);
-                }
-
-                writeToHotmartApiLog("Buscando assinaturas com parâmetros: " . json_encode($apiParams), "HOTMART_SUBSCRIPTIONS");
-
-                $result = $this->_makeRequest('/subscriptions', 'GET', [], $apiParams, $this->subscriptionsBaseUrl);
-
-                if ($result['success'] && isset($result['data']['items']) && is_array($result['data']['items'])) {
-                    $allResults = array_merge($allResults, $result['data']['items']);
-                    // Paginação
-                    if (isset($result['data']['page_info']['next_page_token']) && $result['data']['page_info']['next_page_token']) {
-                        $page_token = $result['data']['page_info']['next_page_token'];
-                    } else {
-                        $page_token = null;
-                    }
-                } else {
-                    // Se der erro, loga e para a paginação desse status
-                    writeToHotmartApiLog("Erro ao buscar assinaturas para status $status: " . json_encode($result), "HOTMART_SUBSCRIPTIONS_ERROR");
-                    $page_token = null;
-                }
-            } while ($page_token);
+    
+    /**
+     * Make API request with proper error handling
+     */
+    private function _makeRequest($endpoint, $method = 'GET', $data = [], $params = [], $baseUrl = null, $useHotToken = false) {
+        $url = ($baseUrl ?: $this->baseUrl) . $endpoint;
+        
+        // Add query parameters
+        if (!empty($params)) {
+            $url .= '?' . http_build_query($params);
         }
-
-        return ['success' => true, 'data' => ['items' => $allResults]];
+        
+        error_log("[HOTMART_API_REQUEST] Fazendo requisição {$method} para: {$url}");
+        
+        $curl = curl_init();
+        $headers = array('Content-Type: application/json');
+        
+        if ($useHotToken && !empty($this->hotToken)) {
+            error_log("[HOTMART_AUTH] Usando HOT Token para autenticação");
+            $headers[] = 'Authorization: ' . $this->hotToken;
+        } else {
+            $token = $this->getAccessToken();
+            if (!$token) {
+                return ['success' => false, 'message' => 'Falha ao obter token de acesso'];
+            }
+            error_log("[HOTMART_AUTH] Usando Access Token para autenticação");
+            $headers[] = 'Authorization: Bearer ' . $token;
+        }
+        
+        $curlOptions = array(
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => $method,
+            CURLOPT_HTTPHEADER => $headers,
+        );
+        
+        if ($method === 'POST' && !empty($data)) {
+            $curlOptions[CURLOPT_POSTFIELDS] = json_encode($data);
+        }
+        
+        curl_setopt_array($curl, $curlOptions);
+        
+        $response = curl_exec($curl);
+        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        $err = curl_error($curl);
+        curl_close($curl);
+        
+        if ($err) {
+            error_log("[HOTMART_API_ERROR] Erro cURL: $err");
+            return ['success' => false, 'message' => "Erro cURL: $err"];
+        }
+        
+        error_log("[HOTMART_API_RESPONSE] Resposta HTTP {$httpCode}: " . substr($response, 0, 200) . "...");
+        
+        // Handle empty response body
+        $decodedResponse = null;
+        if ($response === '' || $response === null) {
+            // corpo vazio -> tratar como resposta vazia (sem itens)
+            $decodedResponse = [];
+        } else {
+            $decodedResponse = json_decode($response, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                // Não-JSON: manter corpo para debug, mas não tratar como items
+                $decodedResponse = ['original_response' => $response];
+            }
+        }
+        
+        if ($httpCode >= 200 && $httpCode < 300) {
+            return [
+                'success' => true,
+                'data' => $decodedResponse,
+                'http_code' => $httpCode
+            ];
+        }
+        
+        return [
+            'success' => false,
+            'message' => "Erro na API ({$httpCode}): " . $response,
+            'response' => $decodedResponse,
+            'http_code' => $httpCode
+        ];
+    }
+    
+    /**
+     * Get users from Hotmart Club API
+     */
+    public function getClubUsers($subdomain) {
+        error_log("[HOTMART_CLUB_USERS] Tentando endpoint: /users com parâmetros: " . json_encode(['subdomain' => $subdomain]));
+        
+        // Try with HOT Token first
+        $result = $this->_makeRequest('/users', 'GET', [], ['subdomain' => $subdomain], $this->clubBaseUrl, true);
+        
+        if ($result['success']) {
+            return $result;
+        }
+        
+        error_log("[HOTMART_CLUB_USERS_WARN] Falha no endpoint /users: " . json_encode($result));
+        
+        // Try alternative endpoint
+        error_log("[HOTMART_CLUB_USERS] Tentando endpoint: /subscriptions/subscribers com parâmetros: []");
+        $result = $this->_makeRequest('/subscriptions/subscribers', 'GET', [], [], $this->clubBaseUrl, true);
+        
+        if ($result['success']) {
+            return $result;
+        }
+        
+        error_log("[HOTMART_CLUB_USERS_WARN] Falha no endpoint /subscriptions/subscribers: " . json_encode($result));
+        
+        return $result;
+    }
+    
+    /**
+     * Get subscriptions as fallback
+     */
+    public function getSubscriptions($status = null) {
+        $params = ['max_results' => 100];
+        
+        // Only add status if it's a valid value
+        $validStatuses = ['ACTIVE', 'CANCELLED', 'CANCELLED_BY_CUSTOMER', 'CANCELLED_BY_ADMIN', 'OVERDUE', 'GRACE_PERIOD'];
+        if ($status && in_array($status, $validStatuses)) {
+            $params['status'] = $status;
+        }
+        
+        error_log("[HOTMART_SUBSCRIPTIONS] Buscando assinaturas com parâmetros: " . json_encode($params));
+        
+        return $this->_makeRequest('/subscriptions', 'GET', [], $params, $this->subscriptionsUrl, false);
+    }
+    
+    /**
+     * Get user progress for lessons
+     */
+    public function getUserProgress($userId) {
+        error_log("[HOTMART_USER_PROGRESS] Buscando progresso para usuário: {$userId}");
+        
+        // $userId pode ser ucode ou numeric
+        $candidates = [];
+        
+        // se parece UUID (contém '-'), tente como ucode
+        if (strpos($userId, '-') !== false) {
+            $candidates[] = ['url' => "/users/{$userId}/lessons", 'useHotToken' => true];
+            $candidates[] = ['url' => "/users/{$userId}/modules/pages", 'params' => ['status'=>'COMPLETED'], 'useHotToken' => true];
+        }
+        
+        // tentar subscriber_code (curto) e id numérico também
+        $candidates[] = ['url' => "/users/{$userId}/lessons", 'useHotToken' => true];
+        $candidates[] = ['url' => "/users/{$userId}/modules/pages", 'params' => ['status'=>'COMPLETED'], 'useHotToken' => true];
+        
+        // depois tentar com access token (useHotToken=false)
+        foreach ($candidates as $c) {
+            $params = $c['params'] ?? [];
+            $res = $this->_makeRequest($c['url'], 'GET', [], $params, $this->clubBaseUrl, $c['useHotToken']);
+            if ($res['success'] && isset($res['data']) && !empty($res['data'])) {
+                // Check if we have items or pages data
+                if (isset($res['data']['items']) || isset($res['data']['pages']) || (is_array($res['data']) && count($res['data']) > 0)) {
+                    error_log("[HOTMART_USER_PROGRESS_SUCCESS] Progresso encontrado para usuário {$userId}");
+                    return $res;
+                }
+            }
+            error_log("[HOTMART_USER_PROGRESS_ATTEMPT] Tentativa falhou para {$c['url']}: " . json_encode($res));
+        }
+        
+        error_log("[HOTMART_USER_PROGRESS_FAIL] Nenhuma tentativa retornou dados válidos para usuário {$userId}");
+        return ['success' => false, 'message' => 'Nenhum dado de progresso encontrado'];
     }
 }
+?>

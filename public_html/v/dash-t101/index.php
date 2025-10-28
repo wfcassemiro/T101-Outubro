@@ -634,6 +634,54 @@ include __DIR__ . '/../vision/includes/sidebar.php';
 }
 .video-card > h2 { margin-left: 30px; }
 
+.stats-grid + .video-card {
+    margin-top: 20px;
+}
+
+/* ======================================================= */
+/* CSS PARA ALINHAR E AUMENTAR FONTES DOS CARDS         */
+/* ======================================================= */
+
+/* 1. Melhora o espaçamento interno geral do card */
+.stats-card .stats-content {
+    padding: 25px;
+}
+
+/* 2. Alinha os textos (título, número, subtítulo) à esquerda */
+.stats-card .stats-info {
+    align-items: flex-start; /* Alinha os itens de texto à esquerda */
+    text-align: left;
+    gap: 5px; /* Define um pequeno espaço entre os textos */
+}
+
+/* 3. Ajusta e aumenta o título do card */
+.stats-card .stats-info h3 {
+    font-size: 1.2rem; /* Fonte maior para o título */
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+/* 4. Aumenta o NÚMERO principal para dar destaque */
+.stats-card .stats-number {
+    font-size: 2.5rem; /* Fonte bem maior para o número */
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.2;
+}
+
+/* 5. Aumenta a fonte do subtítulo */
+.stats-card .stats-subtitle {
+    font-size: 1rem; /* Fonte maior para o texto secundário */
+    color: var(--text-muted);
+}
+
+/* 6. Aumenta o ícone para balancear com as fontes */
+.stats-card .stats-icon i {
+    font-size: 2.2rem; /* Ícone maior */
+    opacity: 0.8;
+}
+
 </style>
 
 <script>

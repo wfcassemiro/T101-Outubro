@@ -6,7 +6,7 @@
   <title><?php echo isset($page_title) ? $page_title . ' - Translators101' : 'Translators101'; ?></title>
   
   <!-- CSS ABSOLUTO FORÇADO - V Directory -->
-  <link rel="stylesheet" href="/vision/assets/css/style.css?v=37">
+  <link rel="stylesheet" href="/vision/assets/css/style.css?v=39">
 
   <!-- Font Awesome 6 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">

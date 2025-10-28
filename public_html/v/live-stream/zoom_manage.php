@@ -1,35 +1,30 @@
 <?php
 /**
- * Painel de Gerenciamento de Reuniões do Zoom
- * Apenas administradores podem acessar
+ * Painel de Gerenciamento de Reuniões do Zoom - VERSÃO INTEGRADA AO LAYOUT
  */
 
 session_start();
 
-// Conectar ao banco de dados usando o sistema existente
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/zoom_functions.php';
+// Dependências do site e do Zoom
+require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/zoom_functions.php'; // ATENÇÃO: Verifique se o nome do arquivo está correto
+
+date_default_timezone_set('America/Sao_Paulo');
 
 /**
- * Verificar se o usuário está logado e é admin
+ * Funções de verificação de usuário (devem ser consistentes com o site)
  */
 function isLoggedIn() {
     return isset($_SESSION['user_id']);
 }
 
 function isAdmin() {
-    if (!isLoggedIn()) {
-        return false;
-    }
-    
-    // Verificar no banco de dados se o usuário é admin
+    if (!isLoggedIn()) return false;
     global $pdo;
-    
     try {
         $stmt = $pdo->prepare("SELECT role FROM users WHERE id = ?");
         $stmt->execute([$_SESSION['user_id']]);
         $user = $stmt->fetch();
-        
         return $user && $user['role'] === 'admin';
     } catch (PDOException $e) {
         error_log("Erro ao verificar role do usuário: " . $e->getMessage());
@@ -37,566 +32,267 @@ function isAdmin() {
     }
 }
 
-// Verificar se está logado e é admin
-if (!isLoggedIn()) {
-    // Redirecionar para a página de login do sistema
-    header('Location: /auth/login.php');
+// Verificar acesso de administrador
+if (!isAdmin()) {
+    header('Location: /auth/login.php'); // Redireciona se não for admin
     exit;
 }
 
-if (!isAdmin()) {
-    // Usuário logado mas não é admin
-    die('<h1>Acesso Negado</h1><p>Apenas administradores podem acessar esta página.</p><a href="/">Voltar</a>');
-}
-
-// Criar tabela se não existir
+// Garante que a tabela do Zoom exista
 createZoomMeetingsTable();
 
 $message = '';
 $messageType = '';
 
-// Processar ações
+// Processar ações do formulário (POST)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
     
     switch ($action) {
-        case 'create':
-            $result = createZoomMeeting(
-                $_POST['topic'],
-                $_POST['start_time'],
-                $_POST['duration'],
-                $_POST['agenda'] ?? '',
-                $_POST['timezone'] ?? 'America/Sao_Paulo'
-            );
-            
+        case 'test_auth':
+            $result = testZoomAuth();
             if ($result['success']) {
-                $message = 'Reunião criada com sucesso! ID: ' . $result['meeting']['id'];
+                $message = '✓ Autenticação funcionando! Usuário: ' . ($result['user']['email'] ?? 'N/A');
                 $messageType = 'success';
             } else {
-                $message = 'Erro ao criar reunião: ' . $result['error'];
+                $message = '✗ Erro na autenticação: ' . $result['message'];
+                $messageType = 'error';
+            }
+            break;
+            
+        case 'create':
+            $result = createZoomMeeting($_POST['topic'], $_POST['start_time'], $_POST['duration'], $_POST['agenda'] ?? '');
+            if ($result['success']) {
+                $message = '✓ Reunião criada com sucesso!';
+                $messageType = 'success';
+            } else {
+                $message = '✗ Erro ao criar reunião: ' . $result['error'];
                 $messageType = 'error';
             }
             break;
             
         case 'add_existing':
             $result = addExistingMeeting($_POST['meeting_id_or_url']);
-            
             if ($result['success']) {
-                $message = 'Reunião adicionada com sucesso!';
+                $message = '✓ Reunião adicionada com sucesso!';
                 $messageType = 'success';
             } else {
-                $message = 'Erro ao adicionar reunião: ' . $result['error'];
+                $message = '✗ Erro ao adicionar reunião: ' . $result['error'];
                 $messageType = 'error';
             }
             break;
             
         case 'delete':
             $result = deleteZoomMeeting($_POST['meeting_id']);
-            
             if ($result['success']) {
-                $message = 'Reunião deletada com sucesso!';
+                $message = '✓ Reunião deletada com sucesso!';
                 $messageType = 'success';
             } else {
-                $message = 'Erro ao deletar reunião: ' . $result['error'];
+                $message = '✗ Erro ao deletar reunião: ' . $result['error'];
                 $messageType = 'error';
             }
             break;
             
         case 'sync':
-            $result = getZoomMeeting($_POST['meeting_id']);
-            
+            $result = syncZoomMeetings();
             if ($result['success']) {
-                $message = 'Reunião sincronizada com sucesso!';
+                $message = "✓ {$result['synced']} reuniões sincronizadas!";
                 $messageType = 'success';
             } else {
-                $message = 'Erro ao sincronizar reunião: ' . $result['error'];
+                $message = '✗ Erro ao sincronizar: ' . $result['error'];
                 $messageType = 'error';
             }
             break;
             
-        case 'set_live':
-            // Desativar todas as outras
-            $pdo->exec("UPDATE zoom_meetings SET show_live = 0");
-            
-            // Ativar apenas esta
-            $stmt = $pdo->prepare("UPDATE zoom_meetings SET show_live = 1 WHERE meeting_id = ?");
-            $stmt->execute([$_POST['meeting_id']]);
-            
-            $message = 'Reunião configurada para exibição ao vivo!';
-            $messageType = 'success';
-            break;
-            
-        case 'remove_live':
-            $stmt = $pdo->prepare("UPDATE zoom_meetings SET show_live = 0 WHERE meeting_id = ?");
-            $stmt->execute([$_POST['meeting_id']]);
-            
-            $message = 'Reunião removida da exibição ao vivo!';
-            $messageType = 'success';
+        case 'toggle_live':
+            $meetingId = $_POST['meeting_id'];
+            $showLive = $_POST['show_live'] == '1' ? 1 : 0;
+            if (toggleMeetingLiveDisplay($meetingId, $showLive)) {
+                $message = $showLive ? '✓ Reunião marcada para exibição!' : '✓ Exibição da reunião desmarcada.';
+                $messageType = 'success';
+            } else {
+                $message = '✗ Erro ao atualizar reunião';
+                $messageType = 'error';
+            }
             break;
     }
 }
 
-// Buscar reuniões ativas
+// Buscar reuniões do banco de dados para exibir na página
 $meetings = getActiveMeetingsFromDatabase(50);
 
-// Incluir head do sistema
-$page_title = "Gerenciar Reuniões Zoom";
-include __DIR__ . '/../vision/includes/head.php';
-?>
+// Configurações da Página
+$page_title = 'Gerenciar Reuniões Zoom';
+$page_description = 'Crie e gerencie reuniões do Zoom para o live stream.';
 
-<!-- CSS Adicional para esta página -->
+// Inclui o cabeçalho do site
+include __DIR__ . '/../vision/includes/head.php';
+include __DIR__ . '/../vision/includes/header.php';
+include __DIR__ . '/../vision/includes/sidebar.php';
+
+?>
 <style>
-    body {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        min-height: 100vh;
+    .admin-card {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 25px;
+        backdrop-filter: blur(10px);
     }
-    
-    .zoom-container {
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 20px;
-    }
-    
-    .zoom-header {
-        background: rgba(255, 255, 255, 0.95);
-        padding: 30px;
-        border-radius: 15px;
-        margin-bottom: 30px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    }
-    
-    .zoom-header h1 {
-        color: #2d3748;
-        font-size: 32px;
-        margin-bottom: 10px;
-    }
-    
-    .zoom-header p {
-        color: #718096;
-        font-size: 16px;
-    }
-    
-    .message {
-        padding: 15px 20px;
-        border-radius: 10px;
-        margin-bottom: 20px;
-        font-weight: 500;
-    }
-    
-    .message.success {
-        background: #c6f6d5;
-        color: #22543d;
-        border-left: 4px solid #38a169;
-    }
-    
-    .message.error {
-        background: #fed7d7;
-        color: #742a2a;
-        border-left: 4px solid #e53e3e;
-    }
-    
-    .grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-        gap: 30px;
-        margin-bottom: 30px;
-    }
-    
-    .card {
-        background: rgba(255, 255, 255, 0.95);
-        padding: 30px;
-        border-radius: 15px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    }
-    
-    .card h2 {
-        color: #2d3748;
-        font-size: 24px;
+    .admin-card h2 {
+        color: var(--text-primary);
         margin-bottom: 20px;
         display: flex;
         align-items: center;
         gap: 10px;
     }
-    
     .form-group {
         margin-bottom: 20px;
     }
-    
     .form-group label {
         display: block;
-        color: #4a5568;
-        font-weight: 600;
         margin-bottom: 8px;
-        font-size: 14px;
+        color: var(--text-secondary);
+        font-weight: 600;
     }
-    
-    .form-group input,
-    .form-group textarea,
-    .form-group select {
+    .form-group input, .form-group textarea {
         width: 100%;
-        padding: 12px 15px;
-        border: 2px solid #e2e8f0;
+        padding: 12px;
+        border: 1px solid var(--glass-border);
         border-radius: 8px;
+        background-color: rgba(255, 255, 255, 0.08);
+        color: var(--text-primary);
         font-size: 14px;
-        transition: all 0.3s ease;
-        font-family: inherit;
     }
-    
-    .form-group input:focus,
-    .form-group textarea:focus,
-    .form-group select:focus {
+    .form-group input:focus, .form-group textarea:focus {
         outline: none;
-        border-color: #667eea;
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        border-color: var(--brand-purple);
     }
-    
-    .form-group textarea {
-        resize: vertical;
-        min-height: 80px;
-    }
-    
-    .btn {
-        padding: 12px 24px;
+    .btn-admin {
+        background: var(--brand-purple);
+        color: white;
         border: none;
+        padding: 12px 25px;
         border-radius: 8px;
-        font-size: 15px;
-        font-weight: 600;
         cursor: pointer;
-        transition: all 0.3s ease;
-        display: inline-block;
-        text-align: center;
-    }
-    
-    .btn-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-    }
-    
-    .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-    }
-    
-    .btn-secondary {
-        background: #4299e1;
-        color: white;
-    }
-    
-    .btn-secondary:hover {
-        background: #3182ce;
-        transform: translateY(-2px);
-    }
-    
-    .btn-danger {
-        background: #f56565;
-        color: white;
-        padding: 8px 16px;
-        font-size: 13px;
-    }
-    
-    .btn-danger:hover {
-        background: #e53e3e;
-    }
-    
-    .btn-info {
-        background: #48bb78;
-        color: white;
-        padding: 8px 16px;
-        font-size: 13px;
-    }
-    
-    .btn-info:hover {
-        background: #38a169;
-    }
-    
-    .meetings-list {
-        background: rgba(255, 255, 255, 0.95);
-        padding: 30px;
-        border-radius: 15px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    }
-    
-    .meetings-list h2 {
-        color: #2d3748;
-        font-size: 24px;
-        margin-bottom: 20px;
-    }
-    
-    .meeting-item {
-        background: #f7fafc;
-        padding: 20px;
-        border-radius: 10px;
-        margin-bottom: 15px;
-        border-left: 4px solid #667eea;
-    }
-    
-    .meeting-item h3 {
-        color: #2d3748;
-        font-size: 18px;
-        margin-bottom: 10px;
-    }
-    
-    .meeting-info {
-        color: #718096;
         font-size: 14px;
-        margin-bottom: 5px;
-    }
-    
-    .meeting-info strong {
-        color: #4a5568;
-    }
-    
-    .meeting-actions {
-        margin-top: 15px;
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-    }
-    
-    .meeting-link {
-        display: inline-block;
-        color: #4299e1;
-        text-decoration: none;
         font-weight: 600;
-        font-size: 13px;
-        padding: 5px 10px;
-        background: #ebf8ff;
-        border-radius: 5px;
-        transition: all 0.3s ease;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
     }
-    
-    .meeting-link:hover {
-        background: #bee3f8;
-        transform: translateY(-1px);
+    .btn-admin:hover {
+        background: var(--brand-purple-dark);
+        transform: translateY(-2px);
     }
+    .btn-admin-secondary { background: #555; }
+    .btn-admin-danger { background: var(--accent-red); }
+    .btn-admin-success { background: var(--accent-green); }
+    .btn-admin-small { padding: 8px 16px; font-size: 12px; }
     
-    .empty-state {
-        text-align: center;
-        padding: 60px 20px;
-        color: #a0aec0;
+    .message-feedback {
+        padding: 15px; border-radius: 8px; margin-bottom: 20px;
     }
-    
-    .info-box {
-        background: #ebf8ff;
-        border-left: 4px solid #4299e1;
-        padding: 15px;
-        margin-top: 20px;
-        border-radius: 5px;
+    .message-feedback.success { background-color: rgba(39, 174, 96, 0.3); color: #fff; }
+    .message-feedback.error { background-color: rgba(192, 57, 43, 0.4); color: #fff; }
+
+    .meetings-grid-admin {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 20px;
     }
-    
-    .info-box h3 {
-        color: #2c5282;
-        font-size: 16px;
-        margin-bottom: 10px;
+    .meeting-card-admin {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+        border: 1px solid var(--glass-border);
+        color: white; padding: 25px; border-radius: 12px; position: relative;
     }
-    
-    .info-box ul {
-        color: #2d3748;
-        font-size: 14px;
-        line-height: 1.8;
-        padding-left: 20px;
-    }
-    
-    @media (max-width: 768px) {
-        .grid {
-            grid-template-columns: 1fr;
-        }
-        
-        .meeting-actions {
-            flex-direction: column;
-        }
+    .meeting-card-admin.live {
+        border-color: var(--accent-green);
+        box-shadow: 0 0 15px rgba(72, 187, 120, 0.5);
     }
 </style>
 
-<div class="zoom-container">
-    <div class="zoom-header">
-        <h1>🎥 Gerenciamento de Reuniões Zoom</h1>
-        <p>Crie novas reuniões ou adicione reuniões existentes para exibir no site</p>
+<div class="main-content">
+    
+    <div class="glass-hero">
+        <div class="hero-content">
+            <h1><i class="fas fa-video"></i> Gerenciar Reuniões Zoom</h1>
+            <p>Crie e gerencie reuniões para o live stream</p>
+        </div>
     </div>
     
     <?php if ($message): ?>
-        <div class="message <?php echo $messageType; ?>">
-            <?php echo htmlspecialchars($message); ?>
-        </div>
+    <div class="message-feedback <?php echo $messageType; ?>">
+        <?php echo htmlspecialchars($message); ?>
+    </div>
     <?php endif; ?>
-    
-    <div class="grid">
-        <!-- Criar Nova Reunião -->
-        <div class="card">
-            <h2>📝 Criar Nova Reunião</h2>
+
+    <div class="admin-card">
+        <h2><i class="fas fa-plug"></i> Testar Conexão com Zoom</h2>
+        <form method="POST" style="display: inline-block; margin-right: 10px;">
+            <input type="hidden" name="action" value="test_auth">
+            <button type="submit" class="btn-admin"><i class="fas fa-bolt"></i> Testar Autenticação</button>
+        </form>
+        <a href="zoom_debug_log.txt" target="_blank" class="btn-admin btn-admin-secondary"><i class="fas fa-file-alt"></i> Ver Log</a>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; align-items: flex-start;">
+        <div class="admin-card">
+            <h2><i class="fas fa-plus-circle"></i> Criar Nova Reunião</h2>
             <form method="POST">
                 <input type="hidden" name="action" value="create">
-                
-                <div class="form-group">
-                    <label for="topic">Título da Reunião *</label>
-                    <input type="text" id="topic" name="topic" required placeholder="Ex: Palestra sobre Marketing Digital">
-                </div>
-                
-                <div class="form-group">
-                    <label for="start_time">Data e Hora de Início *</label>
-                    <input type="datetime-local" id="start_time" name="start_time" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="duration">Duração (minutos) *</label>
-                    <input type="number" id="duration" name="duration" value="60" min="15" max="480" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="timezone">Fuso Horário</label>
-                    <select id="timezone" name="timezone">
-                        <option value="America/Sao_Paulo" selected>Brasília (UTC-3)</option>
-                        <option value="America/New_York">Nova York (UTC-5)</option>
-                        <option value="Europe/London">Londres (UTC+0)</option>
-                        <option value="Europe/Paris">Paris (UTC+1)</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="agenda">Descrição/Agenda</label>
-                    <textarea id="agenda" name="agenda" placeholder="Descreva o conteúdo da reunião..."></textarea>
-                </div>
-                
-                <button type="submit" class="btn btn-primary">✨ Criar Reunião</button>
+                <div class="form-group"><label for="topic">Título *</label><input type="text" id="topic" name="topic" required></div>
+                <div class="form-group"><label for="start_time">Data e Hora *</label><input type="datetime-local" id="start_time" name="start_time" required></div>
+                <div class="form-group"><label for="duration">Duração (minutos) *</label><input type="number" id="duration" name="duration" value="60" required></div>
+                <div class="form-group"><label for="agenda">Descrição/Agenda</label><textarea id="agenda" name="agenda"></textarea></div>
+                <button type="submit" class="btn-admin"><i class="fas fa-calendar-plus"></i> Criar Reunião</button>
             </form>
         </div>
         
-        <!-- Adicionar Reunião Existente -->
-        <div class="card">
-            <h2>➕ Adicionar Reunião Existente</h2>
+        <div class="admin-card">
+            <h2><i class="fas fa-link"></i> Adicionar/Sincronizar</h2>
             <form method="POST">
                 <input type="hidden" name="action" value="add_existing">
-                
                 <div class="form-group">
-                    <label for="meeting_id_or_url">ID ou Link da Reunião *</label>
-                    <input type="text" id="meeting_id_or_url" name="meeting_id_or_url" required 
-                           placeholder="Ex: 1234567890 ou https://zoom.us/j/1234567890">
+                    <label for="meeting_id_or_url">Adicionar por ID ou URL *</label>
+                    <input type="text" id="meeting_id_or_url" name="meeting_id_or_url" placeholder="Ex: 1234567890" required>
                 </div>
-                
-                <p style="color: #718096; font-size: 14px; margin-bottom: 20px;">
-                    Cole o ID numérico da reunião ou o link completo do Zoom
-                </p>
-                
-                <button type="submit" class="btn btn-secondary">🔗 Adicionar Reunião</button>
+                <button type="submit" class="btn-admin"><i class="fas fa-plus"></i> Adicionar</button>
             </form>
-            
-            <div class="info-box">
-                <h3>💡 Como encontrar o ID da reunião?</h3>
-                <ul>
-                    <li>Acesse seu painel do Zoom</li>
-                    <li>Vá em "Reuniões" → "Próximas"</li>
-                    <li>Copie o ID ou link da reunião</li>
-                    <li>Cole aqui para adicionar ao site</li>
-                </ul>
-            </div>
+            <hr style="margin: 30px 0; border: none; border-top: 1px solid var(--glass-border);">
+            <form method="POST">
+                <input type="hidden" name="action" value="sync">
+                <button type="submit" class="btn-admin btn-admin-secondary"><i class="fas fa-sync-alt"></i> Sincronizar Todas</button>
+            </form>
         </div>
     </div>
-    
-    <!-- Lista de Reuniões -->
-    <div class="meetings-list">
-        <h2>📋 Reuniões Agendadas (<?php echo count($meetings); ?>)</h2>
-        
+
+    <div class="admin-card">
+        <h2><i class="fas fa-list"></i> Reuniões Agendadas (<?php echo count($meetings); ?>)</h2>
         <?php if (empty($meetings)): ?>
-            <div class="empty-state">
-                <div style="font-size: 64px; margin-bottom: 20px;">📅</div>
-                <p>Nenhuma reunião agendada</p>
-                <p style="font-size: 14px; margin-top: 10px;">Crie uma nova reunião ou adicione uma existente</p>
-            </div>
+            <p>Nenhuma reunião encontrada.</p>
         <?php else: ?>
-            <?php foreach ($meetings as $meeting): ?>
-                <div class="meeting-item">
-                    <h3><?php echo htmlspecialchars($meeting['topic']); ?></h3>
-                    
-                    <div class="meeting-info">
-                        <strong>ID:</strong> <?php echo htmlspecialchars($meeting['meeting_id']); ?>
-                    </div>
-                    
-                    <div class="meeting-info">
-                        <strong>Data/Hora:</strong> 
-                        <?php echo date('d/m/Y \à\s H:i', strtotime($meeting['start_time'])); ?>
-                    </div>
-                    
-                    <div class="meeting-info">
-                        <strong>Duração:</strong> <?php echo $meeting['duration']; ?> minutos
-                    </div>
-                    
-                    <?php if (!empty($meeting['agenda'])): ?>
-                        <div class="meeting-info">
-                            <strong>Agenda:</strong> <?php echo htmlspecialchars($meeting['agenda']); ?>
+            <div class="meetings-grid-admin">
+                <?php foreach ($meetings as $meeting): ?>
+                    <div class="meeting-card-admin <?php echo ($meeting['show_live'] ?? 0) ? 'live' : ''; ?>">
+                        <h4 style="margin-bottom: 15px;"><?php echo htmlspecialchars($meeting['topic']); ?></h4>
+                        <p><i class="fas fa-calendar"></i> <?php echo date('d/m/Y H:i', strtotime($meeting['start_time'])); ?></p>
+                        <p><i class="fas fa-hashtag"></i> ID: <?php echo $meeting['meeting_id']; ?></p>
+                        <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+                            <a href="<?php echo htmlspecialchars($meeting['join_url']); ?>" target="_blank" class="btn-admin btn-admin-success btn-admin-small"><i class="fas fa-video"></i> Entrar</a>
+                            <form method="POST" style="display: inline;"><input type="hidden" name="action" value="toggle_live"><input type="hidden" name="meeting_id" value="<?php echo $meeting['meeting_id']; ?>"><input type="hidden" name="show_live" value="<?php echo ($meeting['show_live'] ?? 0) ? '0' : '1'; ?>"><button type="submit" class="btn-admin btn-admin-secondary btn-admin-small"><i class="fas fa-<?php echo ($meeting['show_live'] ?? 0) ? 'eye-slash' : 'eye'; ?>"></i> <?php echo ($meeting['show_live'] ?? 0) ? 'Ocultar' : 'Exibir'; ?></button></form>
+                            <form method="POST" onsubmit="return confirm('Tem certeza?');"><input type="hidden" name="action" value="delete"><input type="hidden" name="meeting_id" value="<?php echo $meeting['meeting_id']; ?>"><button type="submit" class="btn-admin btn-admin-danger btn-admin-small"><i class="fas fa-trash"></i></button></form>
                         </div>
-                    <?php endif; ?>
-                    
-                    <div class="meeting-info">
-                        <strong>Status:</strong> <?php echo ucfirst($meeting['status']); ?>
                     </div>
-                    
-                    <div class="meeting-actions">
-                        <a href="<?php echo htmlspecialchars($meeting['join_url']); ?>" 
-                           target="_blank" 
-                           class="meeting-link">
-                            🔗 Link de Participante
-                        </a>
-                        
-                        <?php if (!empty($meeting['start_url'])): ?>
-                            <a href="<?php echo htmlspecialchars($meeting['start_url']); ?>" 
-                               target="_blank" 
-                               class="meeting-link">
-                                🎬 Link de Host
-                            </a>
-                        <?php endif; ?>
-                        
-                        <form method="POST" style="display: inline;">
-                            <input type="hidden" name="action" value="sync">
-                            <input type="hidden" name="meeting_id" value="<?php echo $meeting['meeting_id']; ?>">
-                            <button type="submit" class="btn btn-info">🔄 Sincronizar</button>
-                        </form>
-                        
-                        <?php if (isset($meeting['show_live']) && $meeting['show_live'] == 1): ?>
-                            <form method="POST" style="display: inline;">
-                                <input type="hidden" name="action" value="remove_live">
-                                <input type="hidden" name="meeting_id" value="<?php echo $meeting['meeting_id']; ?>">
-                                <button type="submit" class="btn btn-success" style="background: #27ae60;">
-                                    🔴 AO VIVO (Remover)
-                                </button>
-                            </form>
-                        <?php else: ?>
-                            <form method="POST" style="display: inline;">
-                                <input type="hidden" name="action" value="set_live">
-                                <input type="hidden" name="meeting_id" value="<?php echo $meeting['meeting_id']; ?>">
-                                <button type="submit" class="btn btn-info" style="background: #3498db;">
-                                    📺 Colocar no Ar
-                                </button>
-                            </form>
-                        <?php endif; ?>
-                        
-                        <form method="POST" style="display: inline;" 
-                              onsubmit="return confirm('Deseja realmente deletar esta reunião?');">
-                            <input type="hidden" name="action" value="delete">
-                            <input type="hidden" name="meeting_id" value="<?php echo $meeting['meeting_id']; ?>">
-                            <button type="submit" class="btn btn-danger">🗑️ Deletar</button>
-                        </form>
-                    </div>
-                </div>
-            <?php endforeach; ?>
+                <?php endforeach; ?>
+            </div>
         <?php endif; ?>
     </div>
 </div>
 
-<script>
-// Definir data/hora mínima para agora
-document.addEventListener('DOMContentLoaded', function() {
-    const startTimeInput = document.getElementById('start_time');
-    if (startTimeInput) {
-        const now = new Date();
-        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-        startTimeInput.min = now.toISOString().slice(0, 16);
-    }
-});
-</script>
-
 <?php
-// Incluir footer do sistema (se existir)
-if (file_exists(__DIR__ . '/../vision/includes/footer.php')) {
-    include __DIR__ . '/../vision/includes/footer.php';
-}
+// Inclui o rodapé do site
+include __DIR__ . '/../vision/includes/footer.php';
 ?>

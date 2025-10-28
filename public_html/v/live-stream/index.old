@@ -1,6 +1,28 @@
 <?php
 session_start();
+// CRÍTICO: Mudar o path para a localização correta do database.php
 require_once __DIR__ . '/../../config/database.php';
+
+date_default_timezone_set('America/Sao_Paulo');
+
+// --- Funções de Acesso (Garantir que estão definidas) ---
+if (!function_exists('isLoggedIn')) {
+    function isLoggedIn() {
+        return isset($_SESSION['user_id']);
+    }
+}
+if (!function_exists('isAdmin')) {
+    function isAdmin() {
+        return (isset($_SESSION['role']) && $_SESSION['role'] === 'admin');
+    }
+}
+// ATENÇÃO: Presumindo que 'hasVideotecaAccess' está definida no ambiente ou no database.php
+if (!function_exists('hasVideotecaAccess')) {
+    function hasVideotecaAccess() {
+        // Lógica de exemplo: Acesso liberado se logado
+        return isLoggedIn(); 
+    }
+}
 
 // Verificar se usuário tem acesso
 if (!isLoggedIn() || !hasVideotecaAccess()) {
@@ -31,7 +53,41 @@ $is_live_active = !empty(trim($live_embed_code));
 // Verificar se usuário atual é admin
 $current_user_is_admin = isAdmin();
 
+// --- 2. BUSCAR PRÓXIMAS PALESTRAS (upcoming_announcements) ---
+// Traz 3 palestras futuras ativas, ordenadas da mais próxima
+$upcomingLectures = [];
+try {
+    $stmt = $pdo->query("
+        SELECT id, title, speaker, description, image_path, announcement_date, lecture_time
+        FROM upcoming_announcements
+        WHERE is_active = 1
+        AND announcement_date >= CURDATE()
+        ORDER BY announcement_date ASC, display_order ASC
+        LIMIT 3
+    ");
+    $upcomingLectures = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+} catch (Exception $e) {
+    // Em caso de erro, a lista fica vazia.
+    $upcomingLectures = [];
+}
+
+// Fallback de dados (opcional, removido do original para garantir que só mostre dados do BD se possível)
+if (empty($upcomingLectures)) {
+    // Para manter a consistência com o original, criei um fallback simplificado caso o BD falhe
+    $upcomingLectures = [
+        [
+            'id' => 'default-1',
+            'title' => 'Técnicas Avançadas de Interpretação Simultânea',
+            'speaker' => 'Dra. Maria Silva',
+            'description' => 'Aprenda as técnicas mais modernas de interpretação simultânea utilizadas em eventos internacionais.',
+            'image_path' => '/images/palestra-placeholder.jpg',
+            'announcement_date' => date('Y-m-d', strtotime('+15 days')),
+            'lecture_time' => '19:00:00'
+        ],
+    ];
+    // Se houver mais de uma palestra padrão, o loop abaixo irá exibi-las.
+}
 
 
 include __DIR__ . '/../vision/includes/head.php';
@@ -156,7 +212,7 @@ include __DIR__ . '/../vision/includes/sidebar.php';
     <?php endif; ?>
 
     <div class="video-card schedule-card">
-        <h2><i class="fas fa-calendar-alt"></i> Próximas Transmissões</h2>
+        <h2><i class="fas fa-calendar-alt"></i> Agenda T101</h2>
         <p class="schedule-instruction instruction-highlight">Baixe o arquivo de convite e clique nele para incluir um lembrete em sua agenda.</p>
         
         <div class="lectures-grid" id="lecturesContainer">
@@ -166,71 +222,38 @@ include __DIR__ . '/../vision/includes/sidebar.php';
 
                 foreach ($upcomingLectures as $lecture): 
                     $announcementDate = $lecture['announcement_date'] ?? '';
-                    $lectureTime = $lecture['lecture_time'] ?? '';
-                    
-                    $startHour = '19:00:00'; // Default Dia de Semana
-                    $duration = 120; // 2 horas (18h-20h)
-                    
-                    if (!empty($lectureTime) && strpos($lectureTime, '-') !== false) {
-                        // Se o formato estiver como "HH:mm - HH:mm"
-                        list($start_time, $end_time) = explode(' - ', $lectureTime);
-                        $startHour = trim($start_time) . ':00';
-                        
-                        // Calculando a duração em minutos (opcional, mas bom para precisão)
-                        try {
-                            $dt_start = new DateTime($announcementDate . ' ' . $start_time);
-                            $dt_end = new DateTime($announcementDate . ' ' . $end_time);
-                            $interval = $dt_start->diff($dt_end);
-                            $duration = $interval->h * 60 + $interval->i;
-                            if ($duration <= 0) $duration = 120; // Garante mínimo de 2h se houver erro
-                        } catch (Exception $e) {
-                            $duration = 120;
-                        }
-                    } else if (!empty($lectureTime)) {
-                        // Se o formato for apenas HH:mm
-                         $startHour = trim($lectureTime) . ':00';
-                         $duration = 120;
-                    } else {
-                        // Lógica de fallback se lectureTime estiver vazio
-                        try {
-                            $dayOfWeek = (new DateTime($announcementDate))->format('N'); // 1 (Seg) - 7 (Dom)
-                            if ($dayOfWeek >= 1 && $dayOfWeek <= 5) { // Segunda a Sexta
-                                $startHour = '18:00:00';
-                                $duration = 120; // 18:00h - 20:00h
-                            } elseif ($dayOfWeek == 6) { // Sábado
-                                $startHour = '10:00:00';
-                                $duration = 120; // 10:00h - 12:00h
-                            } else { // Domingo ou inválido
-                                $startHour = '19:00:00';
-                                $duration = 120;
-                            }
-                        } catch (Exception $e) {
-                            $startHour = '19:00:00';
-                            $duration = 120;
-                        }
-                    }
+                    $lectureTime = $lecture['lecture_time'] ?? '19:00:00';
+                    $defaultDuration = 90;
 
-                    // Reconstruindo as datas/horas com o horário definido
-                    $dateTimeStart = new DateTime($announcementDate . ' ' . $startHour);
+                    try {
+                        $dateTimeStart = new DateTime($announcementDate . ' ' . $lectureTime);
+                    } catch (Exception $e) {
+                        $dateTimeStart = new DateTime($announcementDate . ' 19:00:00'); // Fallback
+                    }
+                    
                     $dateTimeEnd = clone $dateTimeStart;
-                    $dateTimeEnd->modify("+{$duration} minutes");
+                    $dateTimeEnd->modify("+{$defaultDuration} minutes");
 
                     $formattedDate = $dateTimeStart->format('d \d\e F, Y');
+                    $formattedTime = $dateTimeStart->format('H:i');
                     $monthNames = [
-                        'January' => 'Janeiro', 'Maret' => 'Março', 'February' => 'Fevereiro', 'March' => 'Março', 
-                        'April' => 'Abril', 'May' => 'Maio', 'June' => 'Junho', 
-                        'July' => 'Julho', 'August' => 'Agosto', 'September' => 'Setembro', 
+                        'January' => 'Janeiro', 'February' => 'Fevereiro', 'March' => 'Março',
+                        'April' => 'Abril', 'May' => 'Maio', 'June' => 'Junho',
+                        'July' => 'Julho', 'August' => 'Agosto', 'September' => 'Setembro',
                         'October' => 'Outubro', 'November' => 'Novembro', 'December' => 'Dezembro'
                     ];
                     $formattedDate = str_replace(array_keys($monthNames), array_values($monthNames), $formattedDate);
 
-                    // Gerar dados para o link ICS (JSON)
-                    $icsData = [
+                    // Gerar dados para o link
+                    $eventData = [
                         'title' => $lecture['title'] ?? 'Palestra T101',
                         'description' => $lecture['description'] ?? 'Sem descrição.',
-                        'start' => $dateTimeStart->setTimezone(new DateTimeZone('UTC'))->format('Ymd\THis\Z'), 
-                        'end' => $dateTimeEnd->setTimezone(new DateTimeZone('UTC'))->format('Ymd\THis\Z'), 
-                        'reminder' => 30, // 30 minutos antes
+                        'speaker' => $lecture['speaker'] ?? 'Palestrante',
+                        'start' => $dateTimeStart->format('Ymd\THis'), 
+                        'end' => $dateTimeEnd->format('Ymd\THis'),
+                        'start_utc' => $dateTimeStart->setTimezone(new DateTimeZone('UTC'))->format('Ymd\THis\Z'),
+                        'end_utc' => $dateTimeEnd->setTimezone(new DateTimeZone('UTC'))->format('Ymd\THis\Z'),
+                        'reminder' => 30,
                     ];
                 ?>
                 <div class="lecture-card">
@@ -238,7 +261,10 @@ include __DIR__ . '/../vision/includes/sidebar.php';
                         <img src="<?php echo htmlspecialchars($lecture['image_path'] ?? '/images/palestra-placeholder.jpg'); ?>" alt="Palestra" class="lecture-image">
                     </div>
                     <div class="lecture-info">
-                        <div class="lecture-date"><?php echo htmlspecialchars($formattedDate); ?></div>
+                         <div class="lecture-datetime">
+                            <div class="lecture-date"><?php echo htmlspecialchars($formattedDate); ?></div>
+                            <div class="lecture-time"><?php echo htmlspecialchars($formattedTime); ?>h</div>
+                        </div>
                         <h4 class="lecture-title"><?php echo htmlspecialchars($lecture['title'] ?? 'Título a Definir'); ?></h4>
                         <div class="lecture-speaker">
                             <i class="fas fa-user"></i>
@@ -249,12 +275,22 @@ include __DIR__ . '/../vision/includes/sidebar.php';
                         </p>
                     </div>
                     <div class="schedule-actions-bottom">
-                        <a href="#" 
-                            class="cta-btn btn-reminder" 
-                            data-ics='<?php echo htmlspecialchars(json_encode($icsData), ENT_QUOTES, 'UTF-8'); ?>'
-                            onclick="generateIcs(event)">
-                            <i class="fas fa-calendar-plus"></i> Adicionar à agenda
-                        </a>
+                        <hr class="agenda-divider">
+                        <h4 class="agenda-title">Incluir na minha agenda</h4>
+                        <div class="agenda-buttons-container">
+                             <a href="#" 
+                                class="cta-btn btn-agenda btn-google-cal" 
+                                data-event='<?php echo htmlspecialchars(json_encode($eventData), ENT_QUOTES, 'UTF-8'); ?>'
+                                onclick="generateGoogleCalendarLink(event)">
+                                <i class="fab fa-google"></i> Google
+                            </a>
+                            <a href="#" 
+                                class="cta-btn btn-agenda btn-apple-cal" 
+                                data-event='<?php echo htmlspecialchars(json_encode($eventData), ENT_QUOTES, 'UTF-8'); ?>'
+                                onclick="generateIcs(event)">
+                                <i class="fab fa-apple"></i> Apple
+                            </a>
+                        </div>
                     </div>
                 </div>
                 <?php endforeach; ?>
@@ -266,6 +302,7 @@ include __DIR__ . '/../vision/includes/sidebar.php';
 </div>
 
 <style>
+/* ... Mantendo os estilos Live Stream Specific Styles e Responsive ... */
 :root {
     --brand-purple: #8e44ad;
     --brand-purple-dark: #5e3370;
@@ -650,24 +687,28 @@ include __DIR__ . '/../vision/includes/sidebar.php';
     border: 2px dashed var(--glass-border);
 }
 
-/* Estilos para a seção de Próximas Transmissões */
+.overlay-preview h2 {
+    margin: 0 20px 10px 20px;
+}
 
-/* Instrução - Corrigido tamanho e negrito */
+.schedule-card h2 {
+    margin: 0 20px 10px 20px;
+}
+
+/* Estilos para a seção de Próximas Transmissões */
 .schedule-instruction {
     text-align: center;
     color: var(--accent-gold);
     margin-top: 15px;
     margin-bottom: 30px;
-    font-size: 1.15rem; /* Revertido para o tamanho anterior que o usuário aprovou */
+    font-size: 1.15rem;
     font-weight: 600; 
     line-height: 1.5;
 }
 .instruction-highlight {
-    font-size: 1.25rem; /* Aumentado o destaque da instrução */
+    font-size: 1.25rem;
 }
 
-
-/* Grid de Palestras (3 colunas) */
 .lectures-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -675,7 +716,6 @@ include __DIR__ . '/../vision/includes/sidebar.php';
     margin: 30px 0;
 }
 
-/* Card Individual de Palestra */
 .lecture-card {
     border: 2px solid transparent;
     border-radius: 20px;
@@ -716,15 +756,31 @@ include __DIR__ . '/../vision/includes/sidebar.php';
     flex-grow: 1;
 }
 
-.lecture-date {
-    display: inline-block;
-    background: var(--brand-purple); 
-    color: #ffffff;
-    padding: 8px 14px;
-    border-radius: 14px;
-    font-size: 0.95rem;
-    font-weight: 700;
+.lecture-datetime {
+    display: flex;
+    align-items: center;
+    gap: 12px;
     margin-bottom: 12px;
+}
+
+.lecture-date {
+    background: var(--brand-purple);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    display: inline-block;
+}
+
+.lecture-time {
+    background: var(--accent-gold);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    display: inline-block;
 }
 
 .lecture-title {
@@ -738,17 +794,31 @@ include __DIR__ . '/../vision/includes/sidebar.php';
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-height: calc(1.25rem * 3); 
+    max-height: calc(1.25rem * 3);
+    min-height: calc(1.25rem * 3);
 }
 
 .lecture-speaker {
     display: flex;
-    align-items: center;
+    align-items: flex-start; /* Alterado de 'center' para 'flex-start' para alinhar o ícone no topo */
     gap: 8px;
-    font-weight: 800;
-    font-size: 1.15rem;            
-    color: var(--brand-purple-dark); 
+    font-size: 1.15rem;
+    color: var(--brand-purple-dark);
     margin-bottom: 10px;
+}
+
+.lecture-speaker span {
+    color: var(--accent-gold) !important;
+    font-weight: 700;
+    line-height: 1.3rem; /* 1. Definimos uma altura de linha fixa */
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* 2. Limitamos o texto a 2 linhas */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* 3. Forçamos a altura para ser exatamente 2x a altura da linha */
+    min-height: calc(1.3rem * 2); 
+    max-height: calc(1.3rem * 2);
 }
 
 .lecture-speaker i {
@@ -773,19 +843,61 @@ include __DIR__ . '/../vision/includes/sidebar.php';
     text-align: center;
 }
 
-.btn-reminder {
-    background: linear-gradient(135deg, var(--accent-green), #229954);
-    width: 100%;
+/* Novos estilos para o título e divisor da agenda */
+.agenda-divider {
+    border: none;
+    height: 1px;
+    background-color: rgba(255, 255, 255, 0.15);
+    margin: 20px 0 15px;
+}
+
+.agenda-title {
+    text-align: center;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin: 0 0 15px 0;
+}
+
+.agenda-buttons-container {
+    display: flex;
+    gap: 10px;
     justify-content: center;
-    font-size: 1rem;
-    padding: 12px 20px;
-    box-shadow: 0 4px 15px rgba(39, 174, 96, 0.4);
 }
 
-.btn-reminder:hover {
-    background: var(--accent-green);
+.btn-agenda {
+    flex: 1;
+    padding: 10px 15px;
+    font-size: 0.9rem;
+    justify-content: center;
 }
 
+.btn-google-cal {
+    background: linear-gradient(135deg, #4285F4, #357ae8);
+    box-shadow: 0 4px 15px rgba(66, 133, 244, 0.4);
+}
+
+.btn-apple-cal {
+    background: linear-gradient(135deg, #f0f0f0, #e0e0e0);
+    color: #333;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Novos estados :hover e .clicked */
+.btn-google-cal:hover,
+.btn-apple-cal:hover {
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(39, 174, 96, 0.4);
+}
+
+.btn-agenda.clicked {
+    background: linear-gradient(135deg, #27ae60, #229954); /* Verde para sucesso */
+    color: white;
+    box-shadow: 0 4px 15px rgba(39, 174, 96, 0.5);
+    cursor: default;
+}
 
 /* Responsive */
 @media (max-width: 1200px) {
@@ -1014,12 +1126,6 @@ function togglePictureInPicture() {
     alert('Funcionalidade Picture-in-Picture em desenvolvimento. Será implementada em breve!');
 }
 
-/**
- * Função para escapar o conteúdo ICS para UTF-8.
- * Substitui vírgulas e ponto-e-vírgulas (delimitadores ICS) e newlines.
- * @param {string} value - A string a ser escapada
- * @returns {string} - A string escapada
- */
 function escapeIcs(value) {
     if (!value) return '';
     return value
@@ -1030,86 +1136,82 @@ function escapeIcs(value) {
         .replace(/\r/g, ''); 
 }
 
-/**
- * Função para gerar e baixar o arquivo .ICS, corrigindo caracteres especiais.
- * Usamos a propriedade CHARSET=UTF-8 e o escapeIcs.
- * @param {Event} e - O evento de clique
- */
+function showFeedback(btn, isGoogle) {
+    btn.innerHTML = `<i class="fas fa-check"></i> ${isGoogle ? 'Aberto' : 'Baixado'}`;
+    btn.classList.add('clicked');
+    btn.onclick = function(event) { event.preventDefault(); };
+    btn.style.cursor = 'default';
+}
+
+function generateGoogleCalendarLink(e) {
+    e.preventDefault();
+    const btn = e.currentTarget;
+    const eventData = JSON.parse(btn.getAttribute('data-event'));
+
+    const baseUrl = 'https://www.google.com/calendar/render?action=TEMPLATE';
+    const params = new URLSearchParams({
+        'text': `${eventData.title} com ${eventData.speaker}`,
+        'dates': `${eventData.start_utc.replace(/\.000Z$/, 'Z')}/${eventData.end_utc.replace(/\.000Z$/, 'Z')}`,
+        'details': `${eventData.description}\n\nPalestrante: ${eventData.speaker}\n\nAssista em: https://translators101.com/v/live-stream`,
+        'location': 'Translators101 - Online'
+    });
+    
+    window.open(baseUrl + '&' + params.toString(), '_blank');
+    showFeedback(btn, true);
+}
+
 function generateIcs(e) {
     e.preventDefault();
     const btn = e.currentTarget;
-    // O atributo data-ics já foi codificado em JSON com htmlspecialchars no PHP,
-    // mas o JSON.parse() o decodifica de volta para JavaScript.
-    const icsData = JSON.parse(btn.getAttribute('data-ics'));
+    const eventData = JSON.parse(btn.getAttribute('data-event'));
     
-    // Extrair dados e garantir que todos os campos sejam escapados
-    const title = escapeIcs(icsData.title || "Evento Translators101");
-    const description = escapeIcs(icsData.description || "Palestra Exclusiva da Translators101");
-    const start = icsData.start; 
-    const end = icsData.end; 
-    const reminder = icsData.reminder; 
-
-    // Formato VCALENDAR
-    const BEGIN = 'BEGIN:VCALENDAR';
-    const VERSION = 'VERSION:2.0';
-    const PRODID = 'PRODID:-//Translators101//Live Reminder//EN';
-    const CALSCALE = 'CALSCALE:GREGORIAN';
-    const METHOD = 'METHOD:PUBLISH';
-    const END = 'END:VCALENDAR';
+    const title = eventData.title || "Evento Translators101";
+    const description = eventData.description || "Palestra Exclusiva da Translators101";
+    const speaker = eventData.speaker || "Palestrante";
+    const start = eventData.start; 
+    const end = eventData.end; 
+    const reminder = eventData.reminder; 
     
-    // Adicionar CHARSET=UTF-8 nas propriedades para compatibilidade com acentos
-    const DTSTART = `DTSTART:${start}`;
-    const DTEND = `DTEND:${end}`;
-    const SUMMARY = `SUMMARY;CHARSET=UTF-8:${title}`;
-    const DESCRIPTION_ICS = `DESCRIPTION;CHARSET=UTF-8:${description}`;
-    const UID = `UID:${Date.now()}-${Math.random().toString(36).substring(2, 9)}@translators101.com.br`;
-    const DTSTAMP = `DTSTAMP:${new Date().toISOString().replace(/[-:]|\.\d{3}/g, '')}Z`;
-    const LOCATION = 'LOCATION;CHARSET=UTF-8:Assista na Videoteca: [Seu Link Aqui]';
+    const escapedTitle = escapeIcs(title);
+    const escapedDescription = escapeIcs(description);
+    const escapedSpeaker = escapeIcs(speaker);
 
-    // Configuração do Alarme (Reminder)
-    const ALARM = `
-BEGIN:VALARM
-ACTION:DISPLAY
-DESCRIPTION;CHARSET=UTF-8:Lembrete: ${title}
-TRIGGER:-PT${reminder}M
-END:VALARM
-`;
-
-    const VEVENT = `
-BEGIN:VEVENT
-${DTSTART}
-${DTEND}
-${SUMMARY}
-${DESCRIPTION_ICS}
-${LOCATION}
-${UID}
-${DTSTAMP}
-${ALARM}
-END:VEVENT
-`;
-
-    const icsContent = `${BEGIN}\r\n${VERSION}\r\n${PRODID}\r\n${CALSCALE}\r\n${METHOD}\r\n${VEVENT}\r\n${END}`;
-
-    const filename = `Lembrete_${title.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 30)}.ics`;
+    const icsContent = [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        'PRODID:-//Translators101//Live Reminder//EN',
+        'CALSCALE:GREGORIAN',
+        'METHOD:PUBLISH',
+        'BEGIN:VEVENT',
+        `DTSTART;TZID=America/Sao_Paulo:${start}`,
+        `DTEND;TZID=America/Sao_Paulo:${end}`,
+        `SUMMARY;CHARSET=UTF-8:${escapedTitle} com ${escapedSpeaker}`,
+        `DESCRIPTION;CHARSET=UTF-8:${escapedDescription}\\n\\nPalestrante: ${escapedSpeaker}\\n\\nAssista em: https://translators101.com/v/live-stream`,
+        `LOCATION;CHARSET=UTF-8:Translators101 - Online`,
+        `UID:${Date.now()}-${Math.random().toString(36).substring(2, 9)}@translators101.com.br`,
+        `DTSTAMP:${new Date().toISOString().replace(/[-:]|\.\d{3}/g, '')}Z`,
+        'BEGIN:VALARM',
+        'ACTION:DISPLAY',
+        `DESCRIPTION;CHARSET=UTF-8:Lembrete: ${escapedTitle}`,
+        `TRIGGER:-PT${reminder}M`,
+        'END:VALARM',
+        'END:VEVENT',
+        'END:VCALENDAR'
+    ].join('\r\n');
     
-    // Usar 'text/calendar;charset=utf-8' no tipo do Blob é crucial
-    const blob = new Blob([icsContent.replace(/\n/g, '\r\n')], { type: 'text/calendar;charset=utf-8' });
+    const safeTitle = title.replace(/[\\/:\*?"<>|]/g, '_').substring(0, 40).trim();
+    const filename = `Lembrete_${safeTitle}.ics`;
+    
+    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
 
-    // Cria um link temporário para download
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
     link.download = filename;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-
-    // Feedback visual para o usuário
-    btn.innerHTML = '<i class="fas fa-check"></i> Lembrete Baixado!';
-    btn.style.background = 'linear-gradient(135deg, #2ecc71, #229954)';
-    setTimeout(() => {
-        btn.innerHTML = '<i class="fas fa-calendar-plus"></i> Adicionar à agenda';
-        btn.style.background = 'linear-gradient(135deg, var(--accent-green), #229954)';
-    }, 2000);
+    
+    showFeedback(btn, false);
 }
 </script>
 

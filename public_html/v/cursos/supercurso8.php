@@ -13,7 +13,7 @@ include __DIR__ . '/../vision/includes/head.php';
 <style>
 /* Estilos específicos para a página do Supercurso */
 .main-content {
-    padding-top: 0;
+    padding-top: 40;
 }
 
 /* --- Hero Section (Adaptado ao estilo da Videoteca) --- */

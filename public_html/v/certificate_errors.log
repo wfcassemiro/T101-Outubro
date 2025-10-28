@@ -1846,3 +1846,473 @@
 [2025-10-23 22:49:56] [PALESTRA] DEBUG: Palestras relacionadas buscadas para categoria ''.
 [2025-10-23 22:49:56] [PALESTRA] DEBUG: Verificação de certificado existente para exibição inicial. ID existente: Nenhum
 [2025-10-23 22:49:56] [PALESTRA] DEBUG: Panda Player Div ID extraído do embed: 'panda-2c2550a8-e8bd-41b1-9c16-ec22fb6771ec'
+[2025-10-24 18:48:45] [PALESTRA] DEBUG: Script palestra.php iniciado.
+[2025-10-24 18:48:45] [PALESTRA] DEBUG: Usuário tem permissão.
+[2025-10-24 18:48:45] [PALESTRA] DEBUG: ID da palestra recebido: 2c2550a8-e8bd-41b1-9c16-ec22fb6771ec
+[2025-10-24 18:48:45] [PALESTRA] DEBUG: Palestra 'S06E47 — Prospecção de Clientes, Networking e Marketing Pessoal para Tradutores Introvertidos — Ivar Panazzolo Junior' encontrada. Duração em minutos: 123
+[2025-10-24 18:48:45] [PALESTRA] DEBUG: User ID da sessão ('848ed1ac-9e27-11f0-916e-bad1eb27008a') é válido e existe na tabela 'users'.
+[2025-10-24 18:48:45] [PALESTRA] DEBUG: Log existente encontrado. Progresso: 26052s
+[2025-10-24 18:48:45] [PALESTRA] DEBUG: Progresso inicial carregado do DB (user_progress_seconds): 26052
+[2025-10-24 18:48:45] [PALESTRA] DEBUG: Palestras relacionadas buscadas para categoria ''.
+[2025-10-24 18:48:45] [PALESTRA] DEBUG: Verificação de certificado existente para exibição inicial. ID existente: Nenhum
+[2025-10-24 18:48:45] [PALESTRA] DEBUG: Panda Player Div ID extraído do embed: 'panda-2c2550a8-e8bd-41b1-9c16-ec22fb6771ec'
+[2025-10-25 03:06:07] [PALESTRA] DEBUG: Script palestra.php iniciado.
+[2025-10-25 03:06:07] [PALESTRA] DEBUG: Usuário tem permissão.
+[2025-10-25 03:06:07] [PALESTRA] DEBUG: ID da palestra recebido: 2ed0c4c3-a1fe-11f0-916e-bad1eb27008a
+[2025-10-25 03:06:07] [PALESTRA] DEBUG: Palestra 'S08E22 — Tradução sobre trilhos' encontrada. Duração em minutos: 84
+[2025-10-25 03:06:07] [PALESTRA] DEBUG: User ID da sessão ('5138d44d-a1f8-11f0-916e-bad1eb27008a') é válido e existe na tabela 'users'.
+[2025-10-25 03:06:07] [PALESTRA] INFO: Novo log de acesso registrado para palestra 'S08E22 — Tradução sobre trilhos' (User ID: 5138d44d-a1f8-11f0-916e-bad1eb27008a).
+[2025-10-25 03:06:07] [PALESTRA] DEBUG: Progresso inicial carregado do DB (user_progress_seconds): 0
+[2025-10-25 03:06:07] [PALESTRA] DEBUG: Palestras relacionadas buscadas para categoria 'Geral'.
+[2025-10-25 03:06:07] [PALESTRA] DEBUG: Verificação de certificado existente para exibição inicial. ID existente: Nenhum
+[2025-10-25 03:06:07] [PALESTRA] DEBUG: Panda Player Div ID extraído do embed: 'panda-c4acb2a8-43e3-4e80-860f-6c73089e4ade'
+[2025-10-25 12:38:05] [PALESTRA] DEBUG: Script palestra.php iniciado.
+[2025-10-25 12:38:05] [PALESTRA] DEBUG: Usuário tem permissão.
+[2025-10-25 12:38:05] [PALESTRA] DEBUG: ID da palestra recebido: 1f024cc5-a1fd-11f0-916e-bad1eb27008a
+[2025-10-25 12:38:05] [PALESTRA] DEBUG: Palestra 'S08E29 — Assinatura de e-mail com imagens e links clicáveis no Gmail' encontrada. Duração em minutos: 90
+[2025-10-25 12:38:05] [PALESTRA] DEBUG: User ID da sessão ('848ed1ac-9e27-11f0-916e-bad1eb27008a') é válido e existe na tabela 'users'.
+[2025-10-25 12:38:05] [PALESTRA] INFO: Novo log de acesso registrado para palestra 'S08E29 — Assinatura de e-mail com imagens e links clicáveis no Gmail' (User ID: 848ed1ac-9e27-11f0-916e-bad1eb27008a).
+[2025-10-25 12:38:05] [PALESTRA] DEBUG: Progresso inicial carregado do DB (user_progress_seconds): 0
+[2025-10-25 12:38:05] [PALESTRA] DEBUG: Palestras relacionadas buscadas para categoria 'Geral'.
+[2025-10-25 12:38:05] [PALESTRA] DEBUG: Verificação de certificado existente para exibição inicial. ID existente: Nenhum
+[2025-10-25 12:38:05] [PALESTRA] DEBUG: Panda Player Div ID extraído do embed: 'panda-6c04c40c-eb12-4074-97b8-d649dbc3c5f5'
+[2025-10-25 14:39:43] [PALESTRA] DEBUG: Script palestra.php iniciado.
+[2025-10-25 14:39:43] [PALESTRA] DEBUG: Usuário tem permissão.
+[2025-10-25 14:39:43] [PALESTRA] DEBUG: ID da palestra recebido: 5701392f-b0e2-11f0-916e-bad1eb27008a
+[2025-10-25 14:39:43] [PALESTRA] DEBUG: Palestra 'S08E35 — No princípio, era o verbo (em 4 línguas): origens da Interpretação Simultânea' encontrada. Duração em minutos: 92
+[2025-10-25 14:39:43] [PALESTRA] DEBUG: User ID da sessão ('a43e4593-b0e2-11f0-916e-bad1eb27008a') é válido e existe na tabela 'users'.
+[2025-10-25 14:39:43] [PALESTRA] INFO: Novo log de acesso registrado para palestra 'S08E35 — No princípio, era o verbo (em 4 línguas): origens da Interpretação Simultânea' (User ID: a43e4593-b0e2-11f0-916e-bad1eb27008a).
+[2025-10-25 14:39:43] [PALESTRA] DEBUG: Progresso inicial carregado do DB (user_progress_seconds): 0
+[2025-10-25 14:39:43] [PALESTRA] DEBUG: Palestras relacionadas buscadas para categoria 'Interpretação'.
+[2025-10-25 14:39:43] [PALESTRA] DEBUG: Verificação de certificado existente para exibição inicial. ID existente: Nenhum
+[2025-10-25 14:39:43] [PALESTRA] DEBUG: Panda Player Div ID extraído do embed: 'panda-eba5289b-c7e9-41eb-944d-88a696f6a366'
+[2025-10-25 14:41:01] [PALESTRA] DEBUG: Script palestra.php iniciado.
+[2025-10-25 14:41:01] [PALESTRA] DEBUG: Usuário tem permissão.
+[2025-10-25 14:41:01] [PALESTRA] DEBUG: ID da palestra recebido: 5701392f-b0e2-11f0-916e-bad1eb27008a
+[2025-10-25 14:41:01] [PALESTRA] DEBUG: Palestra 'S08E35 — No princípio, era o verbo (em 4 línguas): origens da Interpretação Simultânea' encontrada. Duração em minutos: 92
+[2025-10-25 14:41:01] [PALESTRA] DEBUG: User ID da sessão ('a43e4593-b0e2-11f0-916e-bad1eb27008a') é válido e existe na tabela 'users'.
+[2025-10-25 14:41:01] [PALESTRA] DEBUG: Log existente encontrado. Progresso: 41s
+[2025-10-25 14:41:01] [PALESTRA] DEBUG: Progresso inicial carregado do DB (user_progress_seconds): 41
+[2025-10-25 14:41:01] [PALESTRA] DEBUG: Palestras relacionadas buscadas para categoria 'Interpretação'.
+[2025-10-25 14:41:01] [PALESTRA] DEBUG: Verificação de certificado existente para exibição inicial. ID existente: Nenhum
+[2025-10-25 14:41:01] [PALESTRA] DEBUG: Panda Player Div ID extraído do embed: 'panda-eba5289b-c7e9-41eb-944d-88a696f6a366'
+[2025-10-25 15:07:29] [PALESTRA] DEBUG: Script palestra.php iniciado.
+[2025-10-25 15:07:29] [PALESTRA] DEBUG: Usuário tem permissão.
+[2025-10-25 15:07:29] [PALESTRA] DEBUG: ID da palestra recebido: 7b2c0104-1cdc-48b9-85b3-ea58236cc1d4
+[2025-10-25 15:07:29] [PALESTRA] DEBUG: Palestra 'S04E49 — FAQ de tradutores sobre finanças e investimentos — Isabela Fontanella' encontrada. Duração em minutos: 25
+[2025-10-25 15:07:29] [PALESTRA] DEBUG: User ID da sessão ('945a97b5-bad5-42e4-81ea-390f85b9eac9') é válido e existe na tabela 'users'.
+[2025-10-25 15:07:29] [PALESTRA] INFO: Novo log de acesso registrado para palestra 'S04E49 — FAQ de tradutores sobre finanças e investimentos — Isabela Fontanella' (User ID: 945a97b5-bad5-42e4-81ea-390f85b9eac9).
+[2025-10-25 15:07:29] [PALESTRA] DEBUG: Progresso inicial carregado do DB (user_progress_seconds): 0
+[2025-10-25 15:07:29] [PALESTRA] DEBUG: Palestras relacionadas buscadas para categoria ''.
+[2025-10-25 15:07:29] [PALESTRA] DEBUG: Verificação de certificado existente para exibição inicial. ID existente: Nenhum
+[2025-10-25 15:07:29] [PALESTRA] DEBUG: Panda Player Div ID extraído do embed: 'panda-7b2c0104-1cdc-48b9-85b3-ea58236cc1d4'
+[2025-10-25 15:30:50] [GENERATE_SIMPLE] Script generate_simple_certificate.php iniciado
+[2025-10-25 15:30:50] [GENERATE_SIMPLE] Dados recebidos - Lecture: 7b2c0104-1cdc-48b9-85b3-ea58236cc1d4, User: 945a97b5-bad5-42e4-81ea-390f85b9eac9, Watched: 1397s
+[2025-10-25 15:30:50] [GENERATE_SIMPLE] Iniciando validações simplificadas
+[2025-10-25 15:30:50] [GENERATE_SIMPLE] Progresso no DB: 1397s, Enviado pelo cliente: 1397s
+[2025-10-25 15:30:50] [GENERATE_SIMPLE] Tempo final considerado: 1397s
+[2025-10-25 15:30:50] [GENERATE_SIMPLE] Duração total: 1500s, Requerido (85%): 1275s
+[2025-10-25 15:30:50] [GENERATE_SIMPLE] Todas as validações passaram - gerando certificado
+[2025-10-25 15:30:50] [GENERATE_SIMPLE] SUCESSO: Certificado inserido no banco - ID: 1e702af4-0eaf-445d-bbd4-6780d118da19
+[2025-10-25 15:30:50] [GENERATE_SIMPLE] DEBUG: [GENERATE_SIMPLE] Iniciando geração de PNG para ID: 1e702af4-0eaf-445d-bbd4-6780d118da19
+[2025-10-25 15:30:50] [GENERATE_SIMPLE] DEBUG: [GENERATE_SIMPLE] Conversão UTF-8 aplicada para geração.
+[2025-10-25 15:30:50] [GENERATE_SIMPLE] DEBUG: [GENERATE_SIMPLE] Dimensões do template: Largura=3509, Altura=2481
+[2025-10-25 15:30:50] [GENERATE_SIMPLE] DEBUG: [GENERATE_SIMPLE] Procurando fontes TTF para geração...
+[2025-10-25 15:30:50] [GENERATE_SIMPLE] DEBUG: [GENERATE_SIMPLE] Fonte TTF Bold encontrada em: /home/u335416710/domains/translators101.com/public_html/v/includes/../fonts/DejaVuSans-Bold.ttf
+[2025-10-25 15:30:50] [GENERATE_SIMPLE] DEBUG: [GENERATE_SIMPLE] Fonte TTF padrão encontrada em: /home/u335416710/domains/translators101.com/public_html/v/includes/../fonts/DejaVuSans-Bold.ttf
+[2025-10-25 15:30:50] [GENERATE_SIMPLE] DEBUG: [GENERATE_SIMPLE] Usando imagettftext para geração.
+[2025-10-25 15:30:50] [GENERATE_SIMPLE] DEBUG: [GENERATE_SIMPLE] Nome do usuário adicionado (X: 257, Y: 1100).
+[2025-10-25 15:30:50] [GENERATE_SIMPLE] DEBUG: [GENERATE_SIMPLE] Processando título: 'S04E49 — FAQ de tradutores sobre finanças e investimentos — Isabela Fontanella' (tamanho: 83 caracteres)
+[2025-10-25 15:30:50] [GENERATE_SIMPLE] DEBUG: [GENERATE_SIMPLE] Título longo detectado - aplicando quebra de linha inteligente
+[2025-10-25 15:30:50] [GENERATE_SIMPLE] DEBUG: [GENERATE_SIMPLE] Linha 1: 'S04E49 — FAQ de tradutores sobre finanças e'
+[2025-10-25 15:30:50] [GENERATE_SIMPLE] DEBUG: [GENERATE_SIMPLE] Linha 2: 'investimentos — Isabela Fontanella'
+[2025-10-25 15:30:50] [GENERATE_SIMPLE] DEBUG: [GENERATE_SIMPLE] Linha 1 adicionada (X: 898.5, Y: 1350)
+[2025-10-25 15:30:50] [GENERATE_SIMPLE] DEBUG: [GENERATE_SIMPLE] Linha 2 adicionada (X: 1091, Y: 1410)
+[2025-10-25 15:30:50] [GENERATE_SIMPLE] DEBUG: [GENERATE_SIMPLE] Duração da palestra adicionada (X: 2000, Y: 1570).
+[2025-10-25 15:30:50] [GENERATE_SIMPLE] DEBUG: [GENERATE_SIMPLE] Data de emissão adicionada (X: 850, Y: 2330).
+[2025-10-25 15:30:50] [GENERATE_SIMPLE] DEBUG: [GENERATE_SIMPLE] ID do certificado adicionado (X: 280, Y: 2430).
+[2025-10-25 15:30:50] [GENERATE_SIMPLE] DEBUG: URL de verificação gerada: https://v.translators101.com/verificar_certificado.php?id=1e702af4-0eaf-445d-bbd4-6780d118da19
+[2025-10-25 15:30:51] [GENERATE_SIMPLE] DEBUG: QR Code colado na imagem base.
+[2025-10-25 15:30:51] [GENERATE_SIMPLE] DEBUG: [GENERATE_SIMPLE] QR Code adicionado à imagem durante a geração (X: 2989, Y: 2131, Tamanho: 300).
+[2025-10-25 15:30:55] [GENERATE_SIMPLE] DEBUG: [GENERATE_SIMPLE] imagepng() retornou SUCESSO. Verificando se o arquivo gerado é um PNG válido.
+[2025-10-25 15:30:55] [GENERATE_SIMPLE] INFO: [GENERATE_SIMPLE] Certificado PNG gerado e salvo com sucesso em: /home/u335416710/domains/translators101.com/public_html/v/includes/../certificates/certificate_1e702af4-0eaf-445d-bbd4-6780d118da19.png. É um PNG válido.
+[2025-10-25 15:30:55] [GENERATE_SIMPLE] SUCESSO: PNG gerado - /home/u335416710/domains/translators101.com/public_html/v/includes/../certificates/certificate_1e702af4-0eaf-445d-bbd4-6780d118da19.png
+[2025-10-25 15:30:55] [GENERATE_SIMPLE] DEBUG: [GENERATE_SIMPLE] Iniciando geração de PDF T101 CORRIGIDO para ID: 1e702af4-0eaf-445d-bbd4-6780d118da19
+[2025-10-25 15:30:55] [GENERATE_SIMPLE] DEBUG: [GENERATE_SIMPLE] TCPDF encontrado em: /home/u335416710/domains/translators101.com/public_html/v/includes/../vendor/tecnickcom/tcpdf/tcpdf.php
+[2025-10-25 15:30:57] [GENERATE_SIMPLE] DEBUG: [GENERATE_SIMPLE] Template T101 oficial aplicado como fundo
+[2025-10-25 15:30:57] [GENERATE_SIMPLE] DEBUG: URL de verificação gerada: https://v.translators101.com/verificar_certificado.php?id=1e702af4-0eaf-445d-bbd4-6780d118da19
+[2025-10-25 15:30:58] [GENERATE_SIMPLE] DEBUG: [GENERATE_SIMPLE] QR Code T101 adicionado ao PDF (posição corrigida)
+[2025-10-25 15:30:58] [GENERATE_SIMPLE] SUCESSO: [GENERATE_SIMPLE] PDF T101 CORRIGIDO gerado em: /home/u335416710/domains/translators101.com/public_html/v/includes/../certificates/certificate_1e702af4-0eaf-445d-bbd4-6780d118da19.pdf
+[2025-10-25 15:30:58] [GENERATE_SIMPLE] SUCESSO: PDF gerado - /home/u335416710/domains/translators101.com/public_html/v/includes/../certificates/certificate_1e702af4-0eaf-445d-bbd4-6780d118da19.pdf
+[2025-10-25 15:30:58] [GENERATE_SIMPLE] SUCESSO: Certificado gerado - ID: 1e702af4-0eaf-445d-bbd4-6780d118da19, PNG: SIM, PDF: SIM, Assistido: 1397s de 1500s (93.1%)
+[2025-10-25 15:37:02] [PALESTRA] DEBUG: Script palestra.php iniciado.
+[2025-10-25 15:37:02] [PALESTRA] DEBUG: Usuário tem permissão.
+[2025-10-25 15:37:02] [PALESTRA] DEBUG: ID da palestra recebido: 9ae3d7de-ff8b-4ebb-a2e7-d44591e40274
+[2025-10-25 15:37:02] [PALESTRA] DEBUG: Palestra 'S05E31 — Dicionário Gastronômico: receita e degustação — Rozane Rebechi' encontrada. Duração em minutos: 108
+[2025-10-25 15:37:02] [PALESTRA] DEBUG: User ID da sessão ('945a97b5-bad5-42e4-81ea-390f85b9eac9') é válido e existe na tabela 'users'.
+[2025-10-25 15:37:02] [PALESTRA] INFO: Novo log de acesso registrado para palestra 'S05E31 — Dicionário Gastronômico: receita e degustação — Rozane Rebechi' (User ID: 945a97b5-bad5-42e4-81ea-390f85b9eac9).
+[2025-10-25 15:37:02] [PALESTRA] DEBUG: Progresso inicial carregado do DB (user_progress_seconds): 0
+[2025-10-25 15:37:02] [PALESTRA] DEBUG: Palestras relacionadas buscadas para categoria ''.
+[2025-10-25 15:37:02] [PALESTRA] DEBUG: Verificação de certificado existente para exibição inicial. ID existente: Nenhum
+[2025-10-25 15:37:02] [PALESTRA] DEBUG: Panda Player Div ID extraído do embed: 'panda-9ae3d7de-ff8b-4ebb-a2e7-d44591e40274'
+[2025-10-25 17:18:45] [GENERATE_SIMPLE] Script generate_simple_certificate.php iniciado
+[2025-10-25 17:18:45] [GENERATE_SIMPLE] Dados recebidos - Lecture: 9ae3d7de-ff8b-4ebb-a2e7-d44591e40274, User: 945a97b5-bad5-42e4-81ea-390f85b9eac9, Watched: 6098s
+[2025-10-25 17:18:45] [GENERATE_SIMPLE] Iniciando validações simplificadas
+[2025-10-25 17:18:45] [GENERATE_SIMPLE] Progresso no DB: 6089s, Enviado pelo cliente: 6098s
+[2025-10-25 17:18:45] [GENERATE_SIMPLE] Tempo final considerado: 6098s
+[2025-10-25 17:18:45] [GENERATE_SIMPLE] Duração total: 6480s, Requerido (85%): 5508s
+[2025-10-25 17:18:45] [GENERATE_SIMPLE] Todas as validações passaram - gerando certificado
+[2025-10-25 17:18:45] [GENERATE_SIMPLE] SUCESSO: Certificado inserido no banco - ID: 544acc3f-b8c4-4fe9-927a-5d65053507d2
+[2025-10-25 17:18:45] [GENERATE_SIMPLE] DEBUG: [GENERATE_SIMPLE] Iniciando geração de PNG para ID: 544acc3f-b8c4-4fe9-927a-5d65053507d2
+[2025-10-25 17:18:45] [GENERATE_SIMPLE] DEBUG: [GENERATE_SIMPLE] Conversão UTF-8 aplicada para geração.
+[2025-10-25 17:18:45] [GENERATE_SIMPLE] DEBUG: [GENERATE_SIMPLE] Dimensões do template: Largura=3509, Altura=2481
+[2025-10-25 17:18:45] [GENERATE_SIMPLE] DEBUG: [GENERATE_SIMPLE] Procurando fontes TTF para geração...
+[2025-10-25 17:18:45] [GENERATE_SIMPLE] DEBUG: [GENERATE_SIMPLE] Fonte TTF Bold encontrada em: /home/u335416710/domains/translators101.com/public_html/v/includes/../fonts/DejaVuSans-Bold.ttf
+[2025-10-25 17:18:45] [GENERATE_SIMPLE] DEBUG: [GENERATE_SIMPLE] Fonte TTF padrão encontrada em: /home/u335416710/domains/translators101.com/public_html/v/includes/../fonts/DejaVuSans-Bold.ttf
+[2025-10-25 17:18:45] [GENERATE_SIMPLE] DEBUG: [GENERATE_SIMPLE] Usando imagettftext para geração.
+[2025-10-25 17:18:45] [GENERATE_SIMPLE] DEBUG: [GENERATE_SIMPLE] Nome do usuário adicionado (X: 257, Y: 1100).
+[2025-10-25 17:18:45] [GENERATE_SIMPLE] DEBUG: [GENERATE_SIMPLE] Processando título: 'S05E31 — Dicionário Gastronômico: receita e degustação — Rozane Rebechi' (tamanho: 79 caracteres)
+[2025-10-25 17:18:45] [GENERATE_SIMPLE] DEBUG: [GENERATE_SIMPLE] Título longo detectado - aplicando quebra de linha inteligente
+[2025-10-25 17:18:45] [GENERATE_SIMPLE] DEBUG: [GENERATE_SIMPLE] Linha 1: 'S05E31 — Dicionário Gastronômico: receita e'
+[2025-10-25 17:18:45] [GENERATE_SIMPLE] DEBUG: [GENERATE_SIMPLE] Linha 2: 'degustação — Rozane Rebechi'
+[2025-10-25 17:18:45] [GENERATE_SIMPLE] DEBUG: [GENERATE_SIMPLE] Linha 1 adicionada (X: 910, Y: 1350)
+[2025-10-25 17:18:45] [GENERATE_SIMPLE] DEBUG: [GENERATE_SIMPLE] Linha 2 adicionada (X: 1185, Y: 1410)
+[2025-10-25 17:18:45] [GENERATE_SIMPLE] DEBUG: [GENERATE_SIMPLE] Duração da palestra adicionada (X: 2000, Y: 1570).
+[2025-10-25 17:18:45] [GENERATE_SIMPLE] DEBUG: [GENERATE_SIMPLE] Data de emissão adicionada (X: 850, Y: 2330).
+[2025-10-25 17:18:45] [GENERATE_SIMPLE] DEBUG: [GENERATE_SIMPLE] ID do certificado adicionado (X: 280, Y: 2430).
+[2025-10-25 17:18:45] [GENERATE_SIMPLE] DEBUG: URL de verificação gerada: https://v.translators101.com/verificar_certificado.php?id=544acc3f-b8c4-4fe9-927a-5d65053507d2
+[2025-10-25 17:18:46] [GENERATE_SIMPLE] DEBUG: QR Code colado na imagem base.
+[2025-10-25 17:18:46] [GENERATE_SIMPLE] DEBUG: [GENERATE_SIMPLE] QR Code adicionado à imagem durante a geração (X: 2989, Y: 2131, Tamanho: 300).
+[2025-10-25 17:18:49] [GENERATE_SIMPLE] DEBUG: [GENERATE_SIMPLE] imagepng() retornou SUCESSO. Verificando se o arquivo gerado é um PNG válido.
+[2025-10-25 17:18:49] [GENERATE_SIMPLE] INFO: [GENERATE_SIMPLE] Certificado PNG gerado e salvo com sucesso em: /home/u335416710/domains/translators101.com/public_html/v/includes/../certificates/certificate_544acc3f-b8c4-4fe9-927a-5d65053507d2.png. É um PNG válido.
+[2025-10-25 17:18:49] [GENERATE_SIMPLE] SUCESSO: PNG gerado - /home/u335416710/domains/translators101.com/public_html/v/includes/../certificates/certificate_544acc3f-b8c4-4fe9-927a-5d65053507d2.png
+[2025-10-25 17:18:49] [GENERATE_SIMPLE] DEBUG: [GENERATE_SIMPLE] Iniciando geração de PDF T101 CORRIGIDO para ID: 544acc3f-b8c4-4fe9-927a-5d65053507d2
+[2025-10-25 17:18:49] [GENERATE_SIMPLE] DEBUG: [GENERATE_SIMPLE] TCPDF encontrado em: /home/u335416710/domains/translators101.com/public_html/v/includes/../vendor/tecnickcom/tcpdf/tcpdf.php
+[2025-10-25 17:18:52] [GENERATE_SIMPLE] DEBUG: [GENERATE_SIMPLE] Template T101 oficial aplicado como fundo
+[2025-10-25 17:18:52] [GENERATE_SIMPLE] DEBUG: URL de verificação gerada: https://v.translators101.com/verificar_certificado.php?id=544acc3f-b8c4-4fe9-927a-5d65053507d2
+[2025-10-25 17:18:53] [GENERATE_SIMPLE] DEBUG: [GENERATE_SIMPLE] QR Code T101 adicionado ao PDF (posição corrigida)
+[2025-10-25 17:18:53] [GENERATE_SIMPLE] SUCESSO: [GENERATE_SIMPLE] PDF T101 CORRIGIDO gerado em: /home/u335416710/domains/translators101.com/public_html/v/includes/../certificates/certificate_544acc3f-b8c4-4fe9-927a-5d65053507d2.pdf
+[2025-10-25 17:18:53] [GENERATE_SIMPLE] SUCESSO: PDF gerado - /home/u335416710/domains/translators101.com/public_html/v/includes/../certificates/certificate_544acc3f-b8c4-4fe9-927a-5d65053507d2.pdf
+[2025-10-25 17:18:53] [GENERATE_SIMPLE] SUCESSO: Certificado gerado - ID: 544acc3f-b8c4-4fe9-927a-5d65053507d2, PNG: SIM, PDF: SIM, Assistido: 6098s de 6480s (94.1%)
+[2025-10-25 20:17:12] [PALESTRA] DEBUG: Script palestra.php iniciado.
+[2025-10-25 20:17:12] [PALESTRA] DEBUG: Usuário tem permissão.
+[2025-10-25 20:17:12] [PALESTRA] DEBUG: ID da palestra recebido: 9d7162db-af9e-4a00-b475-a213d8adc012
+[2025-10-25 20:17:12] [PALESTRA] DEBUG: Palestra 'S07E37 — Masterclass: Você quer trabalhar na tradução de jogos? — Ivar P. Junior, Horacio Corral e Luciana G. Boldorini' encontrada. Duração em minutos: 133
+[2025-10-25 20:17:12] [PALESTRA] DEBUG: User ID da sessão ('848ed1ac-9e27-11f0-916e-bad1eb27008a') é válido e existe na tabela 'users'.
+[2025-10-25 20:17:12] [PALESTRA] INFO: Novo log de acesso registrado para palestra 'S07E37 — Masterclass: Você quer trabalhar na tradução de jogos? — Ivar P. Junior, Horacio Corral e Luciana G. Boldorini' (User ID: 848ed1ac-9e27-11f0-916e-bad1eb27008a).
+[2025-10-25 20:17:12] [PALESTRA] DEBUG: Progresso inicial carregado do DB (user_progress_seconds): 0
+[2025-10-25 20:17:12] [PALESTRA] DEBUG: Palestras relacionadas buscadas para categoria ''.
+[2025-10-25 20:17:12] [PALESTRA] DEBUG: Verificação de certificado existente para exibição inicial. ID existente: Nenhum
+[2025-10-25 20:17:12] [PALESTRA] DEBUG: Panda Player Div ID extraído do embed: 'panda-9d7162db-af9e-4a00-b475-a213d8adc012'
+[2025-10-25 22:54:51] [PALESTRA] DEBUG: Script palestra.php iniciado.
+[2025-10-25 22:54:51] [PALESTRA] DEBUG: Usuário tem permissão.
+[2025-10-25 22:54:51] [PALESTRA] DEBUG: ID da palestra recebido: 9d7162db-af9e-4a00-b475-a213d8adc012
+[2025-10-25 22:54:51] [PALESTRA] DEBUG: Palestra 'S07E37 — Masterclass: Você quer trabalhar na tradução de jogos? — Ivar P. Junior, Horacio Corral e Luciana G. Boldorini' encontrada. Duração em minutos: 133
+[2025-10-25 22:54:51] [PALESTRA] DEBUG: User ID da sessão ('848ed1ac-9e27-11f0-916e-bad1eb27008a') é válido e existe na tabela 'users'.
+[2025-10-25 22:54:51] [PALESTRA] DEBUG: Log existente encontrado. Progresso: 5623s
+[2025-10-25 22:54:51] [PALESTRA] DEBUG: Progresso inicial carregado do DB (user_progress_seconds): 5623
+[2025-10-25 22:54:51] [PALESTRA] DEBUG: Palestras relacionadas buscadas para categoria ''.
+[2025-10-25 22:54:51] [PALESTRA] DEBUG: Verificação de certificado existente para exibição inicial. ID existente: Nenhum
+[2025-10-25 22:54:51] [PALESTRA] DEBUG: Panda Player Div ID extraído do embed: 'panda-9d7162db-af9e-4a00-b475-a213d8adc012'
+[2025-10-26 00:51:31] [PALESTRA] DEBUG: Script palestra.php iniciado.
+[2025-10-26 00:51:31] [PALESTRA] DEBUG: Usuário tem permissão.
+[2025-10-26 00:51:31] [PALESTRA] DEBUG: ID da palestra recebido: 1f024cc5-a1fd-11f0-916e-bad1eb27008a
+[2025-10-26 00:51:31] [PALESTRA] DEBUG: Palestra 'S08E29 — Assinatura de e-mail com imagens e links clicáveis no Gmail' encontrada. Duração em minutos: 90
+[2025-10-26 00:51:31] [PALESTRA] DEBUG: User ID da sessão ('848ed1ac-9e27-11f0-916e-bad1eb27008a') é válido e existe na tabela 'users'.
+[2025-10-26 00:51:31] [PALESTRA] DEBUG: Log existente encontrado. Progresso: 446s
+[2025-10-26 00:51:31] [PALESTRA] DEBUG: Progresso inicial carregado do DB (user_progress_seconds): 446
+[2025-10-26 00:51:31] [PALESTRA] DEBUG: Palestras relacionadas buscadas para categoria 'Geral'.
+[2025-10-26 00:51:31] [PALESTRA] DEBUG: Verificação de certificado existente para exibição inicial. ID existente: Nenhum
+[2025-10-26 00:51:31] [PALESTRA] DEBUG: Panda Player Div ID extraído do embed: 'panda-6c04c40c-eb12-4074-97b8-d649dbc3c5f5'
+[2025-10-26 02:12:12] [PALESTRA] DEBUG: Script palestra.php iniciado.
+[2025-10-26 02:12:12] [PALESTRA] DEBUG: Usuário tem permissão.
+[2025-10-26 02:12:12] [PALESTRA] DEBUG: ID da palestra recebido: 4b165de0-6112-40eb-9ae8-59e554f2ba11
+[2025-10-26 02:12:12] [PALESTRA] DEBUG: Palestra 'Oficina de LinkedIn I ' encontrada. Duração em minutos: 69
+[2025-10-26 02:12:12] [PALESTRA] DEBUG: User ID da sessão ('848ed1ac-9e27-11f0-916e-bad1eb27008a') é válido e existe na tabela 'users'.
+[2025-10-26 02:12:12] [PALESTRA] INFO: Novo log de acesso registrado para palestra 'Oficina de LinkedIn I ' (User ID: 848ed1ac-9e27-11f0-916e-bad1eb27008a).
+[2025-10-26 02:12:12] [PALESTRA] DEBUG: Progresso inicial carregado do DB (user_progress_seconds): 0
+[2025-10-26 02:12:12] [PALESTRA] DEBUG: Palestras relacionadas buscadas para categoria ''.
+[2025-10-26 02:12:12] [PALESTRA] DEBUG: Verificação de certificado existente para exibição inicial. ID existente: Nenhum
+[2025-10-26 02:12:12] [PALESTRA] DEBUG: Panda Player Div ID extraído do embed: 'panda-4b165de0-6112-40eb-9ae8-59e554f2ba11'
+[2025-10-26 02:14:52] [PALESTRA] DEBUG: Script palestra.php iniciado.
+[2025-10-26 02:14:52] [PALESTRA] DEBUG: Usuário tem permissão.
+[2025-10-26 02:14:52] [PALESTRA] DEBUG: ID da palestra recebido: c97b8e46-a080-11f0-916e-bad1eb27008a
+[2025-10-26 02:14:52] [PALESTRA] DEBUG: Palestra 'S08E30 — Media Interpreting: dos bastidores à tela' encontrada. Duração em minutos: 82
+[2025-10-26 02:14:52] [PALESTRA] DEBUG: User ID da sessão ('848ed1ac-9e27-11f0-916e-bad1eb27008a') é válido e existe na tabela 'users'.
+[2025-10-26 02:14:52] [PALESTRA] INFO: Novo log de acesso registrado para palestra 'S08E30 — Media Interpreting: dos bastidores à tela' (User ID: 848ed1ac-9e27-11f0-916e-bad1eb27008a).
+[2025-10-26 02:14:52] [PALESTRA] DEBUG: Progresso inicial carregado do DB (user_progress_seconds): 0
+[2025-10-26 02:14:52] [PALESTRA] DEBUG: Palestras relacionadas buscadas para categoria 'Interpretação'.
+[2025-10-26 02:14:52] [PALESTRA] DEBUG: Verificação de certificado existente para exibição inicial. ID existente: Nenhum
+[2025-10-26 02:14:52] [PALESTRA] DEBUG: Panda Player Div ID extraído do embed: 'panda-500b1d42-fdc1-4983-ae67-dd9850ddb23a'
+[2025-10-26 02:16:39] [PALESTRA] DEBUG: Script palestra.php iniciado.
+[2025-10-26 02:16:39] [PALESTRA] DEBUG: Usuário tem permissão.
+[2025-10-26 02:16:39] [PALESTRA] DEBUG: ID da palestra recebido: 799b34b6-d7d9-43c2-ab06-a10bd323df84
+[2025-10-26 02:16:39] [PALESTRA] DEBUG: Palestra 'S08E15 — Tradução Médica e ChatGPT: do Prontuário ao Prompt — Luciana Bonancio' encontrada. Duração em minutos: 83
+[2025-10-26 02:16:39] [PALESTRA] DEBUG: User ID da sessão ('848ed1ac-9e27-11f0-916e-bad1eb27008a') é válido e existe na tabela 'users'.
+[2025-10-26 02:16:39] [PALESTRA] INFO: Novo log de acesso registrado para palestra 'S08E15 — Tradução Médica e ChatGPT: do Prontuário ao Prompt — Luciana Bonancio' (User ID: 848ed1ac-9e27-11f0-916e-bad1eb27008a).
+[2025-10-26 02:16:39] [PALESTRA] DEBUG: Progresso inicial carregado do DB (user_progress_seconds): 0
+[2025-10-26 02:16:39] [PALESTRA] DEBUG: Palestras relacionadas buscadas para categoria ''.
+[2025-10-26 02:16:39] [PALESTRA] DEBUG: Verificação de certificado existente para exibição inicial. ID existente: Nenhum
+[2025-10-26 02:16:39] [PALESTRA] DEBUG: Panda Player Div ID extraído do embed: 'panda-799b34b6-d7d9-43c2-ab06-a10bd323df84'
+[2025-10-26 22:30:14] [REPORT_DOWNLOAD] User: 945a97b5-bad5-42e4-81ea-390f85b9eac9 downloaded report: relatorio_educacao_continuada_945a97b5-bad5-42e4-81ea-390f85b9eac9_2025-10-26_22-30-14.pdf (pdf)
+[2025-10-27 15:04:22] [PALESTRA] DEBUG: Script palestra.php iniciado.
+[2025-10-27 15:04:22] [PALESTRA] DEBUG: Usuário tem permissão.
+[2025-10-27 15:04:22] [PALESTRA] DEBUG: ID da palestra recebido: bee8d18e-063d-4060-b5eb-cfff91f160b4
+[2025-10-27 15:04:22] [PALESTRA] DEBUG: Palestra 'Normas ISO/NBR para Tradução e Interpretação. E agora? ' encontrada. Duração em minutos: 121
+[2025-10-27 15:04:22] [PALESTRA] DEBUG: User ID da sessão ('618b199f-b334-11f0-916e-bad1eb27008a') é válido e existe na tabela 'users'.
+[2025-10-27 15:04:22] [PALESTRA] INFO: Novo log de acesso registrado para palestra 'Normas ISO/NBR para Tradução e Interpretação. E agora? ' (User ID: 618b199f-b334-11f0-916e-bad1eb27008a).
+[2025-10-27 15:04:22] [PALESTRA] DEBUG: Progresso inicial carregado do DB (user_progress_seconds): 0
+[2025-10-27 15:04:22] [PALESTRA] DEBUG: Palestras relacionadas buscadas para categoria ''.
+[2025-10-27 15:04:22] [PALESTRA] DEBUG: Verificação de certificado existente para exibição inicial. ID existente: Nenhum
+[2025-10-27 15:04:22] [PALESTRA] DEBUG: Panda Player Div ID extraído do embed: 'panda-bee8d18e-063d-4060-b5eb-cfff91f160b4'
+[2025-10-27 15:04:48] [PALESTRA] DEBUG: Script palestra.php iniciado.
+[2025-10-27 15:04:48] [PALESTRA] DEBUG: Usuário tem permissão.
+[2025-10-27 15:04:48] [PALESTRA] DEBUG: ID da palestra recebido: 5701392f-b0e2-11f0-916e-bad1eb27008a
+[2025-10-27 15:04:48] [PALESTRA] DEBUG: Palestra 'S08E35 — No princípio, era o verbo (em 4 línguas): origens da Interpretação Simultânea' encontrada. Duração em minutos: 92
+[2025-10-27 15:04:48] [PALESTRA] DEBUG: User ID da sessão ('618b199f-b334-11f0-916e-bad1eb27008a') é válido e existe na tabela 'users'.
+[2025-10-27 15:04:48] [PALESTRA] INFO: Novo log de acesso registrado para palestra 'S08E35 — No princípio, era o verbo (em 4 línguas): origens da Interpretação Simultânea' (User ID: 618b199f-b334-11f0-916e-bad1eb27008a).
+[2025-10-27 15:04:48] [PALESTRA] DEBUG: Progresso inicial carregado do DB (user_progress_seconds): 0
+[2025-10-27 15:04:48] [PALESTRA] DEBUG: Palestras relacionadas buscadas para categoria 'Interpretação'.
+[2025-10-27 15:04:48] [PALESTRA] DEBUG: Verificação de certificado existente para exibição inicial. ID existente: Nenhum
+[2025-10-27 15:04:48] [PALESTRA] DEBUG: Panda Player Div ID extraído do embed: 'panda-eba5289b-c7e9-41eb-944d-88a696f6a366'
+[2025-10-27 12:23:16] [ADMIN] DEBUG: [ADMIN_GENERATE] Iniciando geração de PNG para ID: 695fbfcf-15ed-4760-a781-e95da219c226
+[2025-10-27 12:23:16] [ADMIN] DEBUG: [ADMIN_GENERATE] Conversão UTF-8 aplicada para geração.
+[2025-10-27 12:23:16] [ADMIN] DEBUG: [ADMIN_GENERATE] Dimensões do template: Largura=3509, Altura=2481
+[2025-10-27 12:23:16] [ADMIN] DEBUG: [ADMIN_GENERATE] Procurando fontes TTF para geração...
+[2025-10-27 12:23:16] [ADMIN] DEBUG: [ADMIN_GENERATE] Fonte TTF Bold encontrada em: /home/u335416710/domains/translators101.com/public_html/v/includes/../fonts/DejaVuSans-Bold.ttf
+[2025-10-27 12:23:16] [ADMIN] DEBUG: [ADMIN_GENERATE] Fonte TTF padrão encontrada em: /home/u335416710/domains/translators101.com/public_html/v/includes/../fonts/DejaVuSans-Bold.ttf
+[2025-10-27 12:23:16] [ADMIN] DEBUG: [ADMIN_GENERATE] Usando imagettftext para geração.
+[2025-10-27 12:23:16] [ADMIN] DEBUG: [ADMIN_GENERATE] Nome do usuário adicionado (X: 828.5, Y: 1100).
+[2025-10-27 12:23:16] [ADMIN] DEBUG: [ADMIN_GENERATE] Processando título: 'S08E35 — No princípio, era o verbo (em 4 línguas): origens da Interpretação Simultânea' (tamanho: 93 caracteres)
+[2025-10-27 12:23:16] [ADMIN] DEBUG: [ADMIN_GENERATE] Título longo detectado - aplicando quebra de linha inteligente
+[2025-10-27 12:23:16] [ADMIN] DEBUG: [ADMIN_GENERATE] Linha 1: 'S08E35 — No princípio, era o verbo (em 4 línguas):'
+[2025-10-27 12:23:16] [ADMIN] DEBUG: [ADMIN_GENERATE] Linha 2: 'origens da Interpretação Simultânea'
+[2025-10-27 12:23:16] [ADMIN] DEBUG: [ADMIN_GENERATE] Linha 1 adicionada (X: 800.5, Y: 1350)
+[2025-10-27 12:23:16] [ADMIN] DEBUG: [ADMIN_GENERATE] Linha 2 adicionada (X: 1065.5, Y: 1410)
+[2025-10-27 12:23:16] [ADMIN] DEBUG: [ADMIN_GENERATE] Duração da palestra adicionada (X: 2000, Y: 1570).
+[2025-10-27 12:23:16] [ADMIN] DEBUG: [ADMIN_GENERATE] Data de emissão adicionada (X: 850, Y: 2330).
+[2025-10-27 12:23:16] [ADMIN] DEBUG: [ADMIN_GENERATE] ID do certificado adicionado (X: 280, Y: 2430).
+[2025-10-27 12:23:16] [ADMIN] DEBUG: URL de verificação gerada: https://v.translators101.com/verificar_certificado.php?id=695fbfcf-15ed-4760-a781-e95da219c226
+[2025-10-27 12:23:17] [ADMIN] DEBUG: QR Code colado na imagem base.
+[2025-10-27 12:23:17] [ADMIN] DEBUG: [ADMIN_GENERATE] QR Code adicionado à imagem durante a geração (X: 2989, Y: 2131, Tamanho: 300).
+[2025-10-27 12:23:20] [ADMIN] DEBUG: [ADMIN_GENERATE] imagepng() retornou SUCESSO. Verificando se o arquivo gerado é um PNG válido.
+[2025-10-27 12:23:20] [ADMIN] INFO: [ADMIN_GENERATE] Certificado PNG gerado e salvo com sucesso em: /home/u335416710/domains/translators101.com/public_html/v/includes/../certificates/certificate_695fbfcf-15ed-4760-a781-e95da219c226.png. É um PNG válido.
+[2025-10-27 12:23:21] [ADMIN] DEBUG: [ADMIN_GENERATE] Iniciando geração de PNG para ID: e6fa1e1e-93a7-4a85-8f81-589b174d5b6a
+[2025-10-27 12:23:21] [ADMIN] DEBUG: [ADMIN_GENERATE] Conversão UTF-8 aplicada para geração.
+[2025-10-27 12:23:21] [ADMIN] DEBUG: [ADMIN_GENERATE] Dimensões do template: Largura=3509, Altura=2481
+[2025-10-27 12:23:21] [ADMIN] DEBUG: [ADMIN_GENERATE] Procurando fontes TTF para geração...
+[2025-10-27 12:23:21] [ADMIN] DEBUG: [ADMIN_GENERATE] Fonte TTF Bold encontrada em: /home/u335416710/domains/translators101.com/public_html/v/includes/../fonts/DejaVuSans-Bold.ttf
+[2025-10-27 12:23:21] [ADMIN] DEBUG: [ADMIN_GENERATE] Fonte TTF padrão encontrada em: /home/u335416710/domains/translators101.com/public_html/v/includes/../fonts/DejaVuSans-Bold.ttf
+[2025-10-27 12:23:21] [ADMIN] DEBUG: [ADMIN_GENERATE] Usando imagettftext para geração.
+[2025-10-27 12:23:21] [ADMIN] DEBUG: [ADMIN_GENERATE] Nome do usuário adicionado (X: 828.5, Y: 1100).
+[2025-10-27 12:23:21] [ADMIN] DEBUG: [ADMIN_GENERATE] Processando título: 'S08E32 — Fluência do idioma em dia. Mas como anda sua fluência cultural?' (tamanho: 76 caracteres)
+[2025-10-27 12:23:21] [ADMIN] DEBUG: [ADMIN_GENERATE] Título longo detectado - aplicando quebra de linha inteligente
+[2025-10-27 12:23:21] [ADMIN] DEBUG: [ADMIN_GENERATE] Linha 1: 'S08E32 — Fluência do idioma em dia. Mas como anda'
+[2025-10-27 12:23:21] [ADMIN] DEBUG: [ADMIN_GENERATE] Linha 2: 'sua fluência cultural?'
+[2025-10-27 12:23:21] [ADMIN] DEBUG: [ADMIN_GENERATE] Linha 1 adicionada (X: 754, Y: 1350)
+[2025-10-27 12:23:21] [ADMIN] DEBUG: [ADMIN_GENERATE] Linha 2 adicionada (X: 1354, Y: 1410)
+[2025-10-27 12:23:21] [ADMIN] DEBUG: [ADMIN_GENERATE] Duração da palestra adicionada (X: 2000, Y: 1570).
+[2025-10-27 12:23:21] [ADMIN] DEBUG: [ADMIN_GENERATE] Data de emissão adicionada (X: 850, Y: 2330).
+[2025-10-27 12:23:21] [ADMIN] DEBUG: [ADMIN_GENERATE] ID do certificado adicionado (X: 280, Y: 2430).
+[2025-10-27 12:23:21] [ADMIN] DEBUG: URL de verificação gerada: https://v.translators101.com/verificar_certificado.php?id=e6fa1e1e-93a7-4a85-8f81-589b174d5b6a
+[2025-10-27 12:23:22] [ADMIN] DEBUG: QR Code colado na imagem base.
+[2025-10-27 12:23:22] [ADMIN] DEBUG: [ADMIN_GENERATE] QR Code adicionado à imagem durante a geração (X: 2989, Y: 2131, Tamanho: 300).
+[2025-10-27 12:23:25] [ADMIN] DEBUG: [ADMIN_GENERATE] imagepng() retornou SUCESSO. Verificando se o arquivo gerado é um PNG válido.
+[2025-10-27 12:23:25] [ADMIN] INFO: [ADMIN_GENERATE] Certificado PNG gerado e salvo com sucesso em: /home/u335416710/domains/translators101.com/public_html/v/includes/../certificates/certificate_e6fa1e1e-93a7-4a85-8f81-589b174d5b6a.png. É um PNG válido.
+[2025-10-27 12:23:25] [ADMIN] DEBUG: [ADMIN_GENERATE] Iniciando geração de PNG para ID: 9a6838ff-39ed-4681-9bbc-945362d3cdb6
+[2025-10-27 12:23:26] [ADMIN] DEBUG: [ADMIN_GENERATE] Conversão UTF-8 aplicada para geração.
+[2025-10-27 12:23:26] [ADMIN] DEBUG: [ADMIN_GENERATE] Dimensões do template: Largura=3509, Altura=2481
+[2025-10-27 12:23:26] [ADMIN] DEBUG: [ADMIN_GENERATE] Procurando fontes TTF para geração...
+[2025-10-27 12:23:26] [ADMIN] DEBUG: [ADMIN_GENERATE] Fonte TTF Bold encontrada em: /home/u335416710/domains/translators101.com/public_html/v/includes/../fonts/DejaVuSans-Bold.ttf
+[2025-10-27 12:23:26] [ADMIN] DEBUG: [ADMIN_GENERATE] Fonte TTF padrão encontrada em: /home/u335416710/domains/translators101.com/public_html/v/includes/../fonts/DejaVuSans-Bold.ttf
+[2025-10-27 12:23:26] [ADMIN] DEBUG: [ADMIN_GENERATE] Usando imagettftext para geração.
+[2025-10-27 12:23:26] [ADMIN] DEBUG: [ADMIN_GENERATE] Nome do usuário adicionado (X: 828.5, Y: 1100).
+[2025-10-27 12:23:26] [ADMIN] DEBUG: [ADMIN_GENERATE] Processando título: 'S08E31 — Tradução de rimas em jogos' (tamanho: 39 caracteres)
+[2025-10-27 12:23:26] [ADMIN] DEBUG: [ADMIN_GENERATE] Título curto - usando layout centralizado
+[2025-10-27 12:23:26] [ADMIN] DEBUG: [ADMIN_GENERATE] Título curto centralizado adicionado (X: 744.5, Y: 1400)
+[2025-10-27 12:23:26] [ADMIN] DEBUG: [ADMIN_GENERATE] Duração da palestra adicionada (X: 2000, Y: 1570).
+[2025-10-27 12:23:26] [ADMIN] DEBUG: [ADMIN_GENERATE] Data de emissão adicionada (X: 850, Y: 2330).
+[2025-10-27 12:23:26] [ADMIN] DEBUG: [ADMIN_GENERATE] ID do certificado adicionado (X: 280, Y: 2430).
+[2025-10-27 12:23:26] [ADMIN] DEBUG: URL de verificação gerada: https://v.translators101.com/verificar_certificado.php?id=9a6838ff-39ed-4681-9bbc-945362d3cdb6
+[2025-10-27 12:23:27] [ADMIN] DEBUG: QR Code colado na imagem base.
+[2025-10-27 12:23:27] [ADMIN] DEBUG: [ADMIN_GENERATE] QR Code adicionado à imagem durante a geração (X: 2989, Y: 2131, Tamanho: 300).
+[2025-10-27 12:23:30] [ADMIN] DEBUG: [ADMIN_GENERATE] imagepng() retornou SUCESSO. Verificando se o arquivo gerado é um PNG válido.
+[2025-10-27 12:23:30] [ADMIN] INFO: [ADMIN_GENERATE] Certificado PNG gerado e salvo com sucesso em: /home/u335416710/domains/translators101.com/public_html/v/includes/../certificates/certificate_9a6838ff-39ed-4681-9bbc-945362d3cdb6.png. É um PNG válido.
+[2025-10-27 12:23:30] [ADMIN] DEBUG: [ADMIN_GENERATE] Iniciando geração de PNG para ID: fc0a0c5d-e71f-4f2e-a915-56b7c3a0f4da
+[2025-10-27 12:23:30] [ADMIN] DEBUG: [ADMIN_GENERATE] Conversão UTF-8 aplicada para geração.
+[2025-10-27 12:23:30] [ADMIN] DEBUG: [ADMIN_GENERATE] Dimensões do template: Largura=3509, Altura=2481
+[2025-10-27 12:23:30] [ADMIN] DEBUG: [ADMIN_GENERATE] Procurando fontes TTF para geração...
+[2025-10-27 12:23:30] [ADMIN] DEBUG: [ADMIN_GENERATE] Fonte TTF Bold encontrada em: /home/u335416710/domains/translators101.com/public_html/v/includes/../fonts/DejaVuSans-Bold.ttf
+[2025-10-27 12:23:30] [ADMIN] DEBUG: [ADMIN_GENERATE] Fonte TTF padrão encontrada em: /home/u335416710/domains/translators101.com/public_html/v/includes/../fonts/DejaVuSans-Bold.ttf
+[2025-10-27 12:23:30] [ADMIN] DEBUG: [ADMIN_GENERATE] Usando imagettftext para geração.
+[2025-10-27 12:23:30] [ADMIN] DEBUG: [ADMIN_GENERATE] Nome do usuário adicionado (X: 828.5, Y: 1100).
+[2025-10-27 12:23:30] [ADMIN] DEBUG: [ADMIN_GENERATE] Processando título: 'S08E30 — Media Interpreting: dos bastidores à tela' (tamanho: 53 caracteres)
+[2025-10-27 12:23:30] [ADMIN] DEBUG: [ADMIN_GENERATE] Título curto - usando layout centralizado
+[2025-10-27 12:23:30] [ADMIN] DEBUG: [ADMIN_GENERATE] Título curto centralizado adicionado (X: 396.5, Y: 1400)
+[2025-10-27 12:23:30] [ADMIN] DEBUG: [ADMIN_GENERATE] Duração da palestra adicionada (X: 2000, Y: 1570).
+[2025-10-27 12:23:30] [ADMIN] DEBUG: [ADMIN_GENERATE] Data de emissão adicionada (X: 850, Y: 2330).
+[2025-10-27 12:23:30] [ADMIN] DEBUG: [ADMIN_GENERATE] ID do certificado adicionado (X: 280, Y: 2430).
+[2025-10-27 12:23:30] [ADMIN] DEBUG: URL de verificação gerada: https://v.translators101.com/verificar_certificado.php?id=fc0a0c5d-e71f-4f2e-a915-56b7c3a0f4da
+[2025-10-27 12:23:31] [ADMIN] DEBUG: QR Code colado na imagem base.
+[2025-10-27 12:23:31] [ADMIN] DEBUG: [ADMIN_GENERATE] QR Code adicionado à imagem durante a geração (X: 2989, Y: 2131, Tamanho: 300).
+[2025-10-27 12:23:35] [ADMIN] DEBUG: [ADMIN_GENERATE] imagepng() retornou SUCESSO. Verificando se o arquivo gerado é um PNG válido.
+[2025-10-27 12:23:35] [ADMIN] INFO: [ADMIN_GENERATE] Certificado PNG gerado e salvo com sucesso em: /home/u335416710/domains/translators101.com/public_html/v/includes/../certificates/certificate_fc0a0c5d-e71f-4f2e-a915-56b7c3a0f4da.png. É um PNG válido.
+[2025-10-27 12:23:35] [ADMIN] DEBUG: [ADMIN_GENERATE] Iniciando geração de PNG para ID: ef2b3ba3-b917-4aa7-8572-87ff0dcbac6a
+[2025-10-27 12:23:35] [ADMIN] DEBUG: [ADMIN_GENERATE] Conversão UTF-8 aplicada para geração.
+[2025-10-27 12:23:35] [ADMIN] DEBUG: [ADMIN_GENERATE] Dimensões do template: Largura=3509, Altura=2481
+[2025-10-27 12:23:35] [ADMIN] DEBUG: [ADMIN_GENERATE] Procurando fontes TTF para geração...
+[2025-10-27 12:23:35] [ADMIN] DEBUG: [ADMIN_GENERATE] Fonte TTF Bold encontrada em: /home/u335416710/domains/translators101.com/public_html/v/includes/../fonts/DejaVuSans-Bold.ttf
+[2025-10-27 12:23:35] [ADMIN] DEBUG: [ADMIN_GENERATE] Fonte TTF padrão encontrada em: /home/u335416710/domains/translators101.com/public_html/v/includes/../fonts/DejaVuSans-Bold.ttf
+[2025-10-27 12:23:35] [ADMIN] DEBUG: [ADMIN_GENERATE] Usando imagettftext para geração.
+[2025-10-27 12:23:35] [ADMIN] DEBUG: [ADMIN_GENERATE] Nome do usuário adicionado (X: 828.5, Y: 1100).
+[2025-10-27 12:23:35] [ADMIN] DEBUG: [ADMIN_GENERATE] Processando título: 'S08E26 — Prospecção no mercado editorial' (tamanho: 44 caracteres)
+[2025-10-27 12:23:35] [ADMIN] DEBUG: [ADMIN_GENERATE] Título curto - usando layout centralizado
+[2025-10-27 12:23:35] [ADMIN] DEBUG: [ADMIN_GENERATE] Título curto centralizado adicionado (X: 617, Y: 1400)
+[2025-10-27 12:23:35] [ADMIN] DEBUG: [ADMIN_GENERATE] Duração da palestra adicionada (X: 2000, Y: 1570).
+[2025-10-27 12:23:35] [ADMIN] DEBUG: [ADMIN_GENERATE] Data de emissão adicionada (X: 850, Y: 2330).
+[2025-10-27 12:23:35] [ADMIN] DEBUG: [ADMIN_GENERATE] ID do certificado adicionado (X: 280, Y: 2430).
+[2025-10-27 12:23:35] [ADMIN] DEBUG: URL de verificação gerada: https://v.translators101.com/verificar_certificado.php?id=ef2b3ba3-b917-4aa7-8572-87ff0dcbac6a
+[2025-10-27 12:23:36] [ADMIN] DEBUG: QR Code colado na imagem base.
+[2025-10-27 12:23:36] [ADMIN] DEBUG: [ADMIN_GENERATE] QR Code adicionado à imagem durante a geração (X: 2989, Y: 2131, Tamanho: 300).
+[2025-10-27 12:23:40] [ADMIN] DEBUG: [ADMIN_GENERATE] imagepng() retornou SUCESSO. Verificando se o arquivo gerado é um PNG válido.
+[2025-10-27 12:23:40] [ADMIN] INFO: [ADMIN_GENERATE] Certificado PNG gerado e salvo com sucesso em: /home/u335416710/domains/translators101.com/public_html/v/includes/../certificates/certificate_ef2b3ba3-b917-4aa7-8572-87ff0dcbac6a.png. É um PNG válido.
+[2025-10-27 12:23:40] [ADMIN] DEBUG: [ADMIN_GENERATE] Iniciando geração de PNG para ID: a35ce726-bc85-49a6-80a6-d6eb64893cdd
+[2025-10-27 12:23:40] [ADMIN] DEBUG: [ADMIN_GENERATE] Conversão UTF-8 aplicada para geração.
+[2025-10-27 12:23:40] [ADMIN] DEBUG: [ADMIN_GENERATE] Dimensões do template: Largura=3509, Altura=2481
+[2025-10-27 12:23:40] [ADMIN] DEBUG: [ADMIN_GENERATE] Procurando fontes TTF para geração...
+[2025-10-27 12:23:40] [ADMIN] DEBUG: [ADMIN_GENERATE] Fonte TTF Bold encontrada em: /home/u335416710/domains/translators101.com/public_html/v/includes/../fonts/DejaVuSans-Bold.ttf
+[2025-10-27 12:23:40] [ADMIN] DEBUG: [ADMIN_GENERATE] Fonte TTF padrão encontrada em: /home/u335416710/domains/translators101.com/public_html/v/includes/../fonts/DejaVuSans-Bold.ttf
+[2025-10-27 12:23:40] [ADMIN] DEBUG: [ADMIN_GENERATE] Usando imagettftext para geração.
+[2025-10-27 12:23:40] [ADMIN] DEBUG: [ADMIN_GENERATE] Nome do usuário adicionado (X: 828.5, Y: 1100).
+[2025-10-27 12:23:40] [ADMIN] DEBUG: [ADMIN_GENERATE] Processando título: 'S08E20 — Além da Língua: Estratégias que Todo Intérprete Precisa Dominar — Manuela Sampaio' (tamanho: 98 caracteres)
+[2025-10-27 12:23:40] [ADMIN] DEBUG: [ADMIN_GENERATE] Título longo detectado - aplicando quebra de linha inteligente
+[2025-10-27 12:23:40] [ADMIN] DEBUG: [ADMIN_GENERATE] Linha 1: 'S08E20 — Além da Língua: Estratégias que Todo'
+[2025-10-27 12:23:40] [ADMIN] DEBUG: [ADMIN_GENERATE] Linha 2: 'Intérprete Precisa Dominar — Manuela Sampaio'
+[2025-10-27 12:23:40] [ADMIN] DEBUG: [ADMIN_GENERATE] Linha 1 adicionada (X: 852, Y: 1350)
+[2025-10-27 12:23:40] [ADMIN] DEBUG: [ADMIN_GENERATE] Linha 2 adicionada (X: 858, Y: 1410)
+[2025-10-27 12:23:40] [ADMIN] DEBUG: [ADMIN_GENERATE] Duração da palestra adicionada (X: 2000, Y: 1570).
+[2025-10-27 12:23:40] [ADMIN] DEBUG: [ADMIN_GENERATE] Data de emissão adicionada (X: 850, Y: 2330).
+[2025-10-27 12:23:40] [ADMIN] DEBUG: [ADMIN_GENERATE] ID do certificado adicionado (X: 280, Y: 2430).
+[2025-10-27 12:23:40] [ADMIN] DEBUG: URL de verificação gerada: https://v.translators101.com/verificar_certificado.php?id=a35ce726-bc85-49a6-80a6-d6eb64893cdd
+[2025-10-27 12:23:41] [ADMIN] DEBUG: QR Code colado na imagem base.
+[2025-10-27 12:23:41] [ADMIN] DEBUG: [ADMIN_GENERATE] QR Code adicionado à imagem durante a geração (X: 2989, Y: 2131, Tamanho: 300).
+[2025-10-27 12:23:44] [ADMIN] DEBUG: [ADMIN_GENERATE] imagepng() retornou SUCESSO. Verificando se o arquivo gerado é um PNG válido.
+[2025-10-27 12:23:44] [ADMIN] INFO: [ADMIN_GENERATE] Certificado PNG gerado e salvo com sucesso em: /home/u335416710/domains/translators101.com/public_html/v/includes/../certificates/certificate_a35ce726-bc85-49a6-80a6-d6eb64893cdd.png. É um PNG válido.
+[2025-10-27 12:23:45] [ADMIN] DEBUG: [ADMIN_GENERATE] Iniciando geração de PNG para ID: 0d22a91f-a1f7-4990-8138-f0848848100a
+[2025-10-27 12:23:45] [ADMIN] DEBUG: [ADMIN_GENERATE] Conversão UTF-8 aplicada para geração.
+[2025-10-27 12:23:45] [ADMIN] DEBUG: [ADMIN_GENERATE] Dimensões do template: Largura=3509, Altura=2481
+[2025-10-27 12:23:45] [ADMIN] DEBUG: [ADMIN_GENERATE] Procurando fontes TTF para geração...
+[2025-10-27 12:23:45] [ADMIN] DEBUG: [ADMIN_GENERATE] Fonte TTF Bold encontrada em: /home/u335416710/domains/translators101.com/public_html/v/includes/../fonts/DejaVuSans-Bold.ttf
+[2025-10-27 12:23:45] [ADMIN] DEBUG: [ADMIN_GENERATE] Fonte TTF padrão encontrada em: /home/u335416710/domains/translators101.com/public_html/v/includes/../fonts/DejaVuSans-Bold.ttf
+[2025-10-27 12:23:45] [ADMIN] DEBUG: [ADMIN_GENERATE] Usando imagettftext para geração.
+[2025-10-27 12:23:45] [ADMIN] DEBUG: [ADMIN_GENERATE] Nome do usuário adicionado (X: 828.5, Y: 1100).
+[2025-10-27 12:23:45] [ADMIN] DEBUG: [ADMIN_GENERATE] Processando título: 'S08E19 — A IA e o futuro da tradução: uma análise do panorama atual e expectativas — Valter Mendes' (tamanho: 105 caracteres)
+[2025-10-27 12:23:45] [ADMIN] DEBUG: [ADMIN_GENERATE] Título longo detectado - aplicando quebra de linha inteligente
+[2025-10-27 12:23:45] [ADMIN] DEBUG: [ADMIN_GENERATE] Linha 1: 'S08E19 — A IA e o futuro da tradução: uma análise'
+[2025-10-27 12:23:45] [ADMIN] DEBUG: [ADMIN_GENERATE] Linha 2: 'do panorama atual e expectativas — Valter Mendes'
+[2025-10-27 12:23:45] [ADMIN] DEBUG: [ADMIN_GENERATE] Linha 1 adicionada (X: 801, Y: 1350)
+[2025-10-27 12:23:45] [ADMIN] DEBUG: [ADMIN_GENERATE] Linha 2 adicionada (X: 790.5, Y: 1410)
+[2025-10-27 12:23:45] [ADMIN] DEBUG: [ADMIN_GENERATE] Duração da palestra adicionada (X: 2000, Y: 1570).
+[2025-10-27 12:23:45] [ADMIN] DEBUG: [ADMIN_GENERATE] Data de emissão adicionada (X: 850, Y: 2330).
+[2025-10-27 12:23:45] [ADMIN] DEBUG: [ADMIN_GENERATE] ID do certificado adicionado (X: 280, Y: 2430).
+[2025-10-27 12:23:45] [ADMIN] DEBUG: URL de verificação gerada: https://v.translators101.com/verificar_certificado.php?id=0d22a91f-a1f7-4990-8138-f0848848100a
+[2025-10-27 12:23:46] [ADMIN] DEBUG: QR Code colado na imagem base.
+[2025-10-27 12:23:46] [ADMIN] DEBUG: [ADMIN_GENERATE] QR Code adicionado à imagem durante a geração (X: 2989, Y: 2131, Tamanho: 300).
+[2025-10-27 12:23:49] [ADMIN] DEBUG: [ADMIN_GENERATE] imagepng() retornou SUCESSO. Verificando se o arquivo gerado é um PNG válido.
+[2025-10-27 12:23:49] [ADMIN] INFO: [ADMIN_GENERATE] Certificado PNG gerado e salvo com sucesso em: /home/u335416710/domains/translators101.com/public_html/v/includes/../certificates/certificate_0d22a91f-a1f7-4990-8138-f0848848100a.png. É um PNG válido.
+[2025-10-27 12:23:50] [ADMIN] DEBUG: [ADMIN_GENERATE] Iniciando geração de PNG para ID: 1249dbea-18dc-4902-87fb-938f987744e7
+[2025-10-27 12:23:50] [ADMIN] DEBUG: [ADMIN_GENERATE] Conversão UTF-8 aplicada para geração.
+[2025-10-27 12:23:50] [ADMIN] DEBUG: [ADMIN_GENERATE] Dimensões do template: Largura=3509, Altura=2481
+[2025-10-27 12:23:50] [ADMIN] DEBUG: [ADMIN_GENERATE] Procurando fontes TTF para geração...
+[2025-10-27 12:23:50] [ADMIN] DEBUG: [ADMIN_GENERATE] Fonte TTF Bold encontrada em: /home/u335416710/domains/translators101.com/public_html/v/includes/../fonts/DejaVuSans-Bold.ttf
+[2025-10-27 12:23:50] [ADMIN] DEBUG: [ADMIN_GENERATE] Fonte TTF padrão encontrada em: /home/u335416710/domains/translators101.com/public_html/v/includes/../fonts/DejaVuSans-Bold.ttf
+[2025-10-27 12:23:50] [ADMIN] DEBUG: [ADMIN_GENERATE] Usando imagettftext para geração.
+[2025-10-27 12:23:50] [ADMIN] DEBUG: [ADMIN_GENERATE] Nome do usuário adicionado (X: 828.5, Y: 1100).
+[2025-10-27 12:23:50] [ADMIN] DEBUG: [ADMIN_GENERATE] Processando título: 'S08E16 — Vinte anos de tradução: Carta a jovens tradutores — Michel Teixeira' (tamanho: 82 caracteres)
+[2025-10-27 12:23:50] [ADMIN] DEBUG: [ADMIN_GENERATE] Título longo detectado - aplicando quebra de linha inteligente
+[2025-10-27 12:23:50] [ADMIN] DEBUG: [ADMIN_GENERATE] Linha 1: 'S08E16 — Vinte anos de tradução: Carta a jovens'
+[2025-10-27 12:23:50] [ADMIN] DEBUG: [ADMIN_GENERATE] Linha 2: 'tradutores — Michel Teixeira'
+[2025-10-27 12:23:50] [ADMIN] DEBUG: [ADMIN_GENERATE] Linha 1 adicionada (X: 831.5, Y: 1350)
+[2025-10-27 12:23:50] [ADMIN] DEBUG: [ADMIN_GENERATE] Linha 2 adicionada (X: 1219, Y: 1410)
+[2025-10-27 12:23:50] [ADMIN] DEBUG: [ADMIN_GENERATE] Duração da palestra adicionada (X: 2000, Y: 1570).
+[2025-10-27 12:23:50] [ADMIN] DEBUG: [ADMIN_GENERATE] Data de emissão adicionada (X: 850, Y: 2330).
+[2025-10-27 12:23:50] [ADMIN] DEBUG: [ADMIN_GENERATE] ID do certificado adicionado (X: 280, Y: 2430).
+[2025-10-27 12:23:50] [ADMIN] DEBUG: URL de verificação gerada: https://v.translators101.com/verificar_certificado.php?id=1249dbea-18dc-4902-87fb-938f987744e7
+[2025-10-27 12:23:51] [ADMIN] DEBUG: QR Code colado na imagem base.
+[2025-10-27 12:23:51] [ADMIN] DEBUG: [ADMIN_GENERATE] QR Code adicionado à imagem durante a geração (X: 2989, Y: 2131, Tamanho: 300).
+[2025-10-27 12:23:54] [ADMIN] DEBUG: [ADMIN_GENERATE] imagepng() retornou SUCESSO. Verificando se o arquivo gerado é um PNG válido.
+[2025-10-27 12:23:54] [ADMIN] INFO: [ADMIN_GENERATE] Certificado PNG gerado e salvo com sucesso em: /home/u335416710/domains/translators101.com/public_html/v/includes/../certificates/certificate_1249dbea-18dc-4902-87fb-938f987744e7.png. É um PNG válido.
+[2025-10-27 12:23:54] [ADMIN] DEBUG: [ADMIN_GENERATE] Iniciando geração de PNG para ID: f2fe8c00-2725-45b5-b199-d87a31c2c658
+[2025-10-27 12:23:55] [ADMIN] DEBUG: [ADMIN_GENERATE] Conversão UTF-8 aplicada para geração.
+[2025-10-27 12:23:55] [ADMIN] DEBUG: [ADMIN_GENERATE] Dimensões do template: Largura=3509, Altura=2481
+[2025-10-27 12:23:55] [ADMIN] DEBUG: [ADMIN_GENERATE] Procurando fontes TTF para geração...
+[2025-10-27 12:23:55] [ADMIN] DEBUG: [ADMIN_GENERATE] Fonte TTF Bold encontrada em: /home/u335416710/domains/translators101.com/public_html/v/includes/../fonts/DejaVuSans-Bold.ttf
+[2025-10-27 12:23:55] [ADMIN] DEBUG: [ADMIN_GENERATE] Fonte TTF padrão encontrada em: /home/u335416710/domains/translators101.com/public_html/v/includes/../fonts/DejaVuSans-Bold.ttf
+[2025-10-27 12:23:55] [ADMIN] DEBUG: [ADMIN_GENERATE] Usando imagettftext para geração.
+[2025-10-27 12:23:55] [ADMIN] DEBUG: [ADMIN_GENERATE] Nome do usuário adicionado (X: 828.5, Y: 1100).
+[2025-10-27 12:23:55] [ADMIN] DEBUG: [ADMIN_GENERATE] Processando título: 'S08E13 — Regulamentação da Inteligência Artificial no Brasil, nos Estados Unidos e na Europa — Dinaura Julles' (tamanho: 116 caracteres)
+[2025-10-27 12:23:55] [ADMIN] DEBUG: [ADMIN_GENERATE] Título longo detectado - aplicando quebra de linha inteligente
+[2025-10-27 12:23:55] [ADMIN] DEBUG: [ADMIN_GENERATE] Linha 1: 'S08E13 — Regulamentação da Inteligência Artificial'
+[2025-10-27 12:23:55] [ADMIN] DEBUG: [ADMIN_GENERATE] Linha 2: 'no Brasil, nos Estados Unidos e na Europa — Dinaura Julles'
+[2025-10-27 12:23:55] [ADMIN] DEBUG: [ADMIN_GENERATE] Linha 1 adicionada (X: 785.5, Y: 1350)
+[2025-10-27 12:23:55] [ADMIN] DEBUG: [ADMIN_GENERATE] Linha 2 adicionada (X: 651, Y: 1410)
+[2025-10-27 12:23:55] [ADMIN] DEBUG: [ADMIN_GENERATE] Duração da palestra adicionada (X: 2000, Y: 1570).
+[2025-10-27 12:23:55] [ADMIN] DEBUG: [ADMIN_GENERATE] Data de emissão adicionada (X: 850, Y: 2330).
+[2025-10-27 12:23:55] [ADMIN] DEBUG: [ADMIN_GENERATE] ID do certificado adicionado (X: 280, Y: 2430).
+[2025-10-27 12:23:55] [ADMIN] DEBUG: URL de verificação gerada: https://v.translators101.com/verificar_certificado.php?id=f2fe8c00-2725-45b5-b199-d87a31c2c658
+[2025-10-27 12:23:56] [ADMIN] DEBUG: QR Code colado na imagem base.
+[2025-10-27 12:23:56] [ADMIN] DEBUG: [ADMIN_GENERATE] QR Code adicionado à imagem durante a geração (X: 2989, Y: 2131, Tamanho: 300).
+[2025-10-27 12:23:59] [ADMIN] DEBUG: [ADMIN_GENERATE] imagepng() retornou SUCESSO. Verificando se o arquivo gerado é um PNG válido.
+[2025-10-27 12:23:59] [ADMIN] INFO: [ADMIN_GENERATE] Certificado PNG gerado e salvo com sucesso em: /home/u335416710/domains/translators101.com/public_html/v/includes/../certificates/certificate_f2fe8c00-2725-45b5-b199-d87a31c2c658.png. É um PNG válido.
+[2025-10-27 12:23:59] [ADMIN] DEBUG: [ADMIN_GENERATE] Iniciando geração de PNG para ID: 7836f306-7d8f-4e98-b795-f51909d25ea3
+[2025-10-27 12:23:59] [ADMIN] DEBUG: [ADMIN_GENERATE] Conversão UTF-8 aplicada para geração.
+[2025-10-27 12:23:59] [ADMIN] DEBUG: [ADMIN_GENERATE] Dimensões do template: Largura=3509, Altura=2481
+[2025-10-27 12:23:59] [ADMIN] DEBUG: [ADMIN_GENERATE] Procurando fontes TTF para geração...
+[2025-10-27 12:23:59] [ADMIN] DEBUG: [ADMIN_GENERATE] Fonte TTF Bold encontrada em: /home/u335416710/domains/translators101.com/public_html/v/includes/../fonts/DejaVuSans-Bold.ttf
+[2025-10-27 12:23:59] [ADMIN] DEBUG: [ADMIN_GENERATE] Fonte TTF padrão encontrada em: /home/u335416710/domains/translators101.com/public_html/v/includes/../fonts/DejaVuSans-Bold.ttf
+[2025-10-27 12:23:59] [ADMIN] DEBUG: [ADMIN_GENERATE] Usando imagettftext para geração.
+[2025-10-27 12:23:59] [ADMIN] DEBUG: [ADMIN_GENERATE] Nome do usuário adicionado (X: 828.5, Y: 1100).
+[2025-10-27 12:23:59] [ADMIN] DEBUG: [ADMIN_GENERATE] Processando título: 'S07E35 — Perspectivas da carreira do tradutor com a IA — Ricardo Souza, Jorge Davidson, Simone Vieira Resende e Carol Santiago' (tamanho: 130 caracteres)
+[2025-10-27 12:23:59] [ADMIN] DEBUG: [ADMIN_GENERATE] Título longo detectado - aplicando quebra de linha inteligente
+[2025-10-27 12:23:59] [ADMIN] DEBUG: [ADMIN_GENERATE] Linha 1: 'S07E35 — Perspectivas da carreira do tradutor com a'
+[2025-10-27 12:23:59] [ADMIN] DEBUG: [ADMIN_GENERATE] Linha 2: 'IA — Ricardo Souza, Jorge Davidson, Simone Vieira Resende e Carol Santiago'
+[2025-10-27 12:23:59] [ADMIN] DEBUG: [ADMIN_GENERATE] Linha 1 adicionada (X: 753.5, Y: 1350)
+[2025-10-27 12:23:59] [ADMIN] DEBUG: [ADMIN_GENERATE] Linha 2 adicionada (X: 312.5, Y: 1410)
+[2025-10-27 12:23:59] [ADMIN] DEBUG: [ADMIN_GENERATE] Duração da palestra adicionada (X: 2000, Y: 1570).
+[2025-10-27 12:23:59] [ADMIN] DEBUG: [ADMIN_GENERATE] Data de emissão adicionada (X: 850, Y: 2330).
+[2025-10-27 12:23:59] [ADMIN] DEBUG: [ADMIN_GENERATE] ID do certificado adicionado (X: 280, Y: 2430).
+[2025-10-27 12:23:59] [ADMIN] DEBUG: URL de verificação gerada: https://v.translators101.com/verificar_certificado.php?id=7836f306-7d8f-4e98-b795-f51909d25ea3
+[2025-10-27 12:24:00] [ADMIN] DEBUG: QR Code colado na imagem base.
+[2025-10-27 12:24:00] [ADMIN] DEBUG: [ADMIN_GENERATE] QR Code adicionado à imagem durante a geração (X: 2989, Y: 2131, Tamanho: 300).
+[2025-10-27 12:24:04] [ADMIN] DEBUG: [ADMIN_GENERATE] imagepng() retornou SUCESSO. Verificando se o arquivo gerado é um PNG válido.
+[2025-10-27 12:24:04] [ADMIN] INFO: [ADMIN_GENERATE] Certificado PNG gerado e salvo com sucesso em: /home/u335416710/domains/translators101.com/public_html/v/includes/../certificates/certificate_7836f306-7d8f-4e98-b795-f51909d25ea3.png. É um PNG válido.
+[2025-10-27 21:57:25] [PALESTRA] DEBUG: Script palestra.php iniciado.
+[2025-10-27 21:57:25] [PALESTRA] DEBUG: Usuário tem permissão.
+[2025-10-27 21:57:25] [PALESTRA] DEBUG: ID da palestra recebido: e0483cc4-a1cc-43ea-b59e-f53e4ab52c36
+[2025-10-27 21:57:25] [PALESTRA] DEBUG: Palestra 'Especial #ITD 2020 — T101 Explica memoQ' encontrada. Duração em minutos: 67
+[2025-10-27 21:57:25] [PALESTRA] DEBUG: User ID da sessão ('848ed1ac-9e27-11f0-916e-bad1eb27008a') é válido e existe na tabela 'users'.
+[2025-10-27 21:57:25] [PALESTRA] INFO: Novo log de acesso registrado para palestra 'Especial #ITD 2020 — T101 Explica memoQ' (User ID: 848ed1ac-9e27-11f0-916e-bad1eb27008a).
+[2025-10-27 21:57:25] [PALESTRA] DEBUG: Progresso inicial carregado do DB (user_progress_seconds): 0
+[2025-10-27 21:57:25] [PALESTRA] DEBUG: Palestras relacionadas buscadas para categoria ''.
+[2025-10-27 21:57:25] [PALESTRA] DEBUG: Verificação de certificado existente para exibição inicial. ID existente: Nenhum
+[2025-10-27 21:57:25] [PALESTRA] DEBUG: Panda Player Div ID extraído do embed: 'panda-e0483cc4-a1cc-43ea-b59e-f53e4ab52c36'
+[2025-10-27 23:22:32] [PALESTRA] DEBUG: Script palestra.php iniciado.
+[2025-10-27 23:22:32] [PALESTRA] DEBUG: Usuário tem permissão.
+[2025-10-27 23:22:32] [PALESTRA] DEBUG: ID da palestra recebido: e0483cc4-a1cc-43ea-b59e-f53e4ab52c36
+[2025-10-27 23:22:32] [PALESTRA] DEBUG: Palestra 'Especial #ITD 2020 — T101 Explica memoQ' encontrada. Duração em minutos: 67
+[2025-10-27 23:22:32] [PALESTRA] DEBUG: User ID da sessão ('848ed1ac-9e27-11f0-916e-bad1eb27008a') é válido e existe na tabela 'users'.
+[2025-10-27 23:22:32] [PALESTRA] DEBUG: Log existente encontrado. Progresso: 4257s
+[2025-10-27 23:22:32] [PALESTRA] DEBUG: Progresso inicial carregado do DB (user_progress_seconds): 4257
+[2025-10-27 23:22:32] [PALESTRA] DEBUG: Palestras relacionadas buscadas para categoria ''.
+[2025-10-27 23:22:32] [PALESTRA] DEBUG: Verificação de certificado existente para exibição inicial. ID existente: Nenhum
+[2025-10-27 23:22:32] [PALESTRA] DEBUG: Panda Player Div ID extraído do embed: 'panda-e0483cc4-a1cc-43ea-b59e-f53e4ab52c36'
+[2025-10-28 00:42:20] [PALESTRA] DEBUG: Script palestra.php iniciado.
+[2025-10-28 00:42:20] [PALESTRA] DEBUG: Usuário tem permissão.
+[2025-10-28 00:42:20] [PALESTRA] DEBUG: ID da palestra recebido: e0483cc4-a1cc-43ea-b59e-f53e4ab52c36
+[2025-10-28 00:42:20] [PALESTRA] DEBUG: Palestra 'Especial #ITD 2020 — T101 Explica memoQ' encontrada. Duração em minutos: 67
+[2025-10-28 00:42:20] [PALESTRA] DEBUG: User ID da sessão ('848ed1ac-9e27-11f0-916e-bad1eb27008a') é válido e existe na tabela 'users'.
+[2025-10-28 00:42:20] [PALESTRA] DEBUG: Log existente encontrado. Progresso: 4465s
+[2025-10-28 00:42:20] [PALESTRA] DEBUG: Progresso inicial carregado do DB (user_progress_seconds): 4465
+[2025-10-28 00:42:20] [PALESTRA] DEBUG: Palestras relacionadas buscadas para categoria ''.
+[2025-10-28 00:42:20] [PALESTRA] DEBUG: Verificação de certificado existente para exibição inicial. ID existente: Nenhum
+[2025-10-28 00:42:20] [PALESTRA] DEBUG: Panda Player Div ID extraído do embed: 'panda-e0483cc4-a1cc-43ea-b59e-f53e4ab52c36'

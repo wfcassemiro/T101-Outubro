@@ -354,8 +354,8 @@ include __DIR__ . '/vision/includes/head.php';
 
 /* Estilos para watchlist/assistida */
 .watchlist-section {
-    margin-top: 12px;
-    padding-top: 8px;
+    margin-top: auto; /* A mágica acontece aqui! */
+    padding-top: 10px; /* Adiciona um espaço acima */
     border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -737,6 +737,70 @@ include __DIR__ . '/vision/includes/head.php';
     padding: 8px 16px; 
     font-size: 0.85rem; 
 }
+
+/* =================================================================== */
+/* SOLUÇÃO DEFINITIVA DE ALINHAMENTO PARA OS CARDS DA VIDEOTECA      */
+/* =================================================================== */
+
+/* 1. Transforma o card inteiro em um container flexível vertical */
+.video-card {
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+/* 2. Garante que a área de informações ocupe todo o espaço vertical disponível */
+.video-info {
+    display: flex !important;
+    flex-direction: column !important; /* Organiza os itens de texto em coluna */
+    flex-grow: 1 !important;         /* ESSENCIAL: Faz esta área crescer para preencher o card */
+    padding: 20px; /* Adiciona um padding padrão caso ele se perca */
+}
+
+/* 3. Mantém a altura fixa para TÍTULO e PALESTRANTE para consistência */
+.video-info h3 {
+    font-size: 1rem;
+    line-height: 1.3rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-height: calc(1.3rem * 3);
+    max-height: calc(1.3rem * 3);
+}
+
+.video-speaker {
+    font-size: 0.95rem;
+    line-height: 1.2rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-height: calc(1.2rem * 2);
+    max-height: calc(1.2rem * 2);
+    margin-bottom: 10px;
+}
+
+/* 4. Faz a DESCRIÇÃO ocupar o espaço que sobrar no meio */
+.video-desc {
+    flex-grow: 1; /* ESSENCIAL: Faz a descrição se expandir para preencher o espaço vazio */
+    font-size: 0.8rem;
+    line-height: 1.4rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 4; /* Limita a descrição a 4 linhas no máximo */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 5. Empurra a seção "Colocar na minha lista" para o fundo do card */
+.watchlist-section {
+    margin-top: auto !important; /* A MÁGICA: Empurra este item para o final do container flexível */
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
 </style>
 
 <?php
