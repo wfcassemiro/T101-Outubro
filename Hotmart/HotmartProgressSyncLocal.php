@@ -217,48 +217,80 @@ class HotmartProgressSyncLocal {
         $name = $user['name'];
         
         // Prioridade: hotmart_ucode > hotmart_subscription_id > email
-        $hotmartId = $user['hotmart_ucode'] 
-                    ?? $user['hotmart_subscription_id'] 
-                    ?? null;
+        $hotmartUcode = $user['hotmart_ucode'] ?? null;
+        $hotmartSubId = $user['hotmart_subscription_id'] ?? null;
         
-        if (!$hotmartId && !$email) {
-            $this->log("Usuário {$userId} sem identificador Hotmart válido", 'WARNING');
-            return ['success' => false, 'message' => 'Sem identificador'];
+        // Log detalhado dos IDs disponíveis
+        $this->log("Processando usuário: {$name} ({$email})");
+        $this->log("  - hotmart_ucode: " . ($hotmartUcode ?: 'NULL'));
+        $this->log("  - hotmart_subscription_id: " . ($hotmartSubId ?: 'NULL'));
+        
+        // Decidir qual ID usar
+        $hotmartId = null;
+        $idType = null;
+        
+        if ($hotmartUcode) {
+            $hotmartId = $hotmartUcode;
+            $idType = 'ucode';
+        } elseif ($hotmartSubId) {
+            $hotmartId = $hotmartSubId;
+            $idType = 'subscription_id';
         }
         
-        $identifier = $hotmartId ?? $email;
-        $this->log("Processando usuário: {$name} ({$email}) - ID: {$identifier}");
+        if (!$hotmartId) {
+            $this->log("  ⚠️ Usuário sem hotmart_ucode ou hotmart_subscription_id, pulando...", 'WARNING');
+            return ['success' => false, 'message' => 'Sem identificador Hotmart'];
+        }
         
-        // Tentar buscar progresso usando diferentes métodos
-        $progressData = null;
+        $this->log("  ✓ Usando {$idType}: {$hotmartId}");
         
-        // Método 1: Se tem ucode, usar getUserProgress
-        if ($hotmartId) {
-            $this->log("  Tentando getUserProgress com ucode: {$hotmartId}");
-            $progressResult = $this->hotmartApi->getUserProgress($hotmartId);
+        // Tentar buscar progresso
+        $this->log("  → Chamando getUserProgress({$hotmartId})...");
+        $progressResult = $this->hotmartApi->getUserProgress($hotmartId);
+        
+        // LOG DETALHADO DA RESPOSTA DA API
+        $this->log("  ← Resposta da API:");
+        $this->log("    - Success: " . ($progressResult['success'] ? 'true' : 'false'));
+        $this->log("    - HTTP Code: " . ($progressResult['http_code'] ?? 'N/A'));
+        
+        if (isset($progressResult['message'])) {
+            $this->log("    - Message: " . $progressResult['message']);
+        }
+        
+        if (isset($progressResult['data'])) {
+            $dataCount = is_array($progressResult['data']) ? count($progressResult['data']) : 'N/A';
+            $this->log("    - Data count: " . $dataCount);
             
-            if ($progressResult['success']) {
-                $progressData = $progressResult['data'];
-                $this->log("  ✓ Progresso obtido via getUserProgress");
+            if (is_array($progressResult['data']) && count($progressResult['data']) > 0) {
+                $this->log("    - Estrutura: " . json_encode(array_keys($progressResult['data']), JSON_UNESCAPED_UNICODE));
+                $this->log("    - Exemplo (primeiros 500 chars): " . substr(json_encode($progressResult['data'], JSON_UNESCAPED_UNICODE), 0, 500));
             } else {
-                $this->log("  ✗ getUserProgress falhou: " . ($progressResult['message'] ?? 'Sem mensagem'), 'WARNING');
+                $this->log("    - Data está vazio ou não é array");
             }
+        } else {
+            $this->log("    - Sem 'data' na resposta");
         }
         
-        // Se não conseguiu dados ainda, retornar
+        if (!$progressResult['success']) {
+            $this->log("  ✗ API retornou falha", 'WARNING');
+            return ['success' => true, 'progress_records' => 0];
+        }
+        
+        $progressData = $progressResult['data'] ?? null;
+        
         if (!$progressData || empty($progressData)) {
-            $this->log("  Nenhum progresso encontrado para {$email}");
+            $this->log("  ✗ Nenhum dado de progresso retornado");
             return ['success' => true, 'progress_records' => 0];
         }
         
         // Processar e salvar dados de progresso
-        $progressRecords = $this->processProgressData($userId, $identifier, $progressData);
+        $progressRecords = $this->processProgressData($userId, $hotmartId, $progressData);
         
         // Atualizar timestamp
         $this->updateUserSyncTimestamp($userId);
         
         // Atualizar hotmart_ucode se não estava preenchido
-        if (empty($user['hotmart_ucode']) && $hotmartId) {
+        if (empty($user['hotmart_ucode']) && $hotmartId && $idType === 'ucode') {
             $this->updateUserHotmartUcode($userId, $hotmartId);
         }
         
