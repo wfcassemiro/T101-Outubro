@@ -77,7 +77,7 @@ require_once __DIR__ . '/../hotmart.php';
         
         <?php
         $api = new HotmartAPI();
-        $subdomain = 't101';
+        $subdomain = defined('HOTMART_SUBDOMAIN') ? HOTMART_SUBDOMAIN : 'assinaturapremiumplustranslato';
         ?>
         
         <div class="test-section">
