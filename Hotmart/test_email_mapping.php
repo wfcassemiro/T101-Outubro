@@ -13,7 +13,8 @@ $api = new HotmartAPI();
 
 // 1. Buscar Club Users
 echo "1. Buscando Club Users...\n";
-$clubResult = $api->getClubUsers('t101');
+$subdomain = defined('HOTMART_SUBDOMAIN') ? HOTMART_SUBDOMAIN : 'assinaturapremiumplustranslato';
+$clubResult = $api->getClubUsers($subdomain);
 echo "Success: " . ($clubResult['success'] ? 'true' : 'false') . "\n";
 
 if ($clubResult['success'] && !empty($clubResult['data'])) {
