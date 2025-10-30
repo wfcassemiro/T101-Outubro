@@ -179,8 +179,9 @@ class HotmartProgressSyncLocal {
         
         try {
             // Tentar buscar do Club Users (recomendado pela documentação)
-            $this->log('  → Chamando getClubUsers(t101)...');
-            $result = $this->hotmartApi->getClubUsers('t101');
+            $subdomain = defined('HOTMART_SUBDOMAIN') ? HOTMART_SUBDOMAIN : 'assinaturapremiumplustranslato';
+            $this->log("  → Chamando getClubUsers({$subdomain})...");
+            $result = $this->hotmartApi->getClubUsers($subdomain);
             
             $this->log('  ← Resposta da API Club Users:');
             $this->log('    - Success: ' . ($result['success'] ? 'true' : 'false'));
