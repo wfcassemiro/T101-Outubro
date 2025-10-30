@@ -7,12 +7,13 @@
 class HotmartProgressSync {
     private $pdo;
     private $hotmartApi;
-    private $subdomain = 't101';
+    private $subdomain;
     private $logFile;
     
     public function __construct($pdo, $hotmartApi) {
         $this->pdo = $pdo;
         $this->hotmartApi = $hotmartApi;
+        $this->subdomain = defined('HOTMART_SUBDOMAIN') ? HOTMART_SUBDOMAIN : 'assinaturapremiumplustranslato';
         // Log no diretório v/logs/ que já existe
         $this->logFile = __DIR__ . '/../logs/hotmart_progress_sync.log';
     }
